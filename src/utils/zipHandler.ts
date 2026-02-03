@@ -81,23 +81,56 @@ function stripJsonComments(content: string): string {
 
 /**
  * Extract and parse an addon file (.mcpack or .mcaddon)
- * Both formats are ZIP files with renamed extensions
+ * .mcaddon files can contain .mcpack files inside them
  */
 export async function extractAddonFile(file: File): Promise<ParsedPack[]> {
     const arrayBuffer = await file.arrayBuffer();
+    return extractFromZip(arrayBuffer, file.name);
+}
+
+/**
+ * Extract packs from a ZIP buffer
+ */
+async function extractFromZip(arrayBuffer: ArrayBuffer, originalFileName: string): Promise<ParsedPack[]> {
     const zip = await JSZip.loadAsync(arrayBuffer);
 
     const parsedPacks: ParsedPack[] = [];
     const manifestPaths: string[] = [];
+    const nestedMcpackPaths: string[] = [];
 
-    // Find all manifest.json files in the archive
+    // Find all manifest.json files and nested .mcpack files in the archive
     zip.forEach((relativePath, zipEntry) => {
-        if (!zipEntry.dir && relativePath.toLowerCase().endsWith('manifest.json')) {
-            manifestPaths.push(relativePath);
+        if (!zipEntry.dir) {
+            if (relativePath.toLowerCase().endsWith('manifest.json')) {
+                manifestPaths.push(relativePath);
+            } else if (relativePath.toLowerCase().endsWith('.mcpack')) {
+                nestedMcpackPaths.push(relativePath);
+            }
         }
     });
 
-    // Process each manifest found
+    // Process nested .mcpack files first (for .mcaddon files)
+    for (const mcpackPath of nestedMcpackPaths) {
+        try {
+            const mcpackData = await zip.file(mcpackPath)?.async('arraybuffer');
+            if (mcpackData) {
+                // Get the .mcpack filename for originalFileName
+                const mcpackFileName = mcpackPath.split('/').pop() || mcpackPath;
+                const nestedPacks = await extractFromZip(mcpackData, mcpackFileName);
+                parsedPacks.push(...nestedPacks);
+            }
+        } catch (error) {
+            console.error(`Error extracting nested mcpack at ${mcpackPath}:`, error);
+        }
+    }
+
+    // If we found nested mcpacks, skip direct manifest processing
+    // (the manifests are inside the mcpack files)
+    if (nestedMcpackPaths.length > 0) {
+        return parsedPacks;
+    }
+
+    // Process each manifest found (for .mcpack files or flat .mcaddon structure)
     for (const manifestPath of manifestPaths) {
         try {
             const manifestContent = await zip.file(manifestPath)?.async('string');
@@ -151,7 +184,7 @@ export async function extractAddonFile(file: File): Promise<ParsedPack[]> {
                 manifest,
                 packType,
                 folderName,
-                originalFileName: file.name,
+                originalFileName,
                 files,
                 iconBlob,
                 relativePath: manifestDir

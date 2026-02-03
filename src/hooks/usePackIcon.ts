@@ -37,7 +37,7 @@ interface UseDragDropReturn extends DragDropState {
     handleDragEnter: (e: React.DragEvent) => void;
     handleDragLeave: (e: React.DragEvent) => void;
     handleDragOver: (e: React.DragEvent) => void;
-    handleDrop: (e: React.DragEvent, onFileDrop: (file: File) => void) => void;
+    handleDrop: (e: React.DragEvent, onFilesDrop: (files: File[]) => void) => void;
 }
 
 export function useDragDrop(): UseDragDropReturn {
@@ -71,15 +71,15 @@ export function useDragDrop(): UseDragDropReturn {
         e.stopPropagation();
     }, []);
 
-    const handleDrop = useCallback((e: React.DragEvent, onFileDrop: (file: File) => void) => {
+    const handleDrop = useCallback((e: React.DragEvent, onFilesDrop: (files: File[]) => void) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragging(false);
         setDragCounter(0);
 
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0];
-            onFileDrop(file);
+            const files = Array.from(e.dataTransfer.files);
+            onFilesDrop(files);
             e.dataTransfer.clearData();
         }
     }, []);
@@ -92,3 +92,4 @@ export function useDragDrop(): UseDragDropReturn {
         handleDrop
     };
 }
+

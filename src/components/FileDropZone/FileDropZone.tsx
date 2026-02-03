@@ -5,12 +5,12 @@ import { useDragDrop } from '@/hooks';
 import styles from './FileDropZone.module.css';
 
 interface FileDropZoneProps {
-    onFileSelect: (file: File) => void;
+    onFilesSelect: (files: File[]) => void;
     disabled?: boolean;
     accept?: string;
 }
 
-export function FileDropZone({ onFileSelect, disabled, accept = '.mcpack,.mcaddon' }: FileDropZoneProps) {
+export function FileDropZone({ onFilesSelect, disabled, accept = '.mcpack,.mcaddon' }: FileDropZoneProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const { isDragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragDrop();
 
@@ -21,10 +21,11 @@ export function FileDropZone({ onFileSelect, disabled, accept = '.mcpack,.mcaddo
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            onFileSelect(file);
-            // Reset input so same file can be selected again
+        const fileList = e.target.files;
+        if (fileList && fileList.length > 0) {
+            const files = Array.from(fileList);
+            onFilesSelect(files);
+            // Reset input so same files can be selected again
             e.target.value = '';
         }
     };
@@ -36,7 +37,7 @@ export function FileDropZone({ onFileSelect, disabled, accept = '.mcpack,.mcaddo
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, onFileSelect)}
+            onDrop={(e) => handleDrop(e, onFilesSelect)}
             role="button"
             tabIndex={disabled ? -1 : 0}
             onKeyDown={(e) => {
@@ -52,6 +53,7 @@ export function FileDropZone({ onFileSelect, disabled, accept = '.mcpack,.mcaddo
                 onChange={handleFileChange}
                 className={styles.hiddenInput}
                 disabled={disabled}
+                multiple
             />
 
             <div className={styles.content}>
@@ -65,10 +67,10 @@ export function FileDropZone({ onFileSelect, disabled, accept = '.mcpack,.mcaddo
 
                 <div className={styles.text}>
                     <p className={styles.primary}>
-                        {isDragging ? 'Drop addon file here' : 'Drag & drop addon file'}
+                        {isDragging ? 'Drop addon files here' : 'Drag & drop addon files'}
                     </p>
                     <p className={styles.secondary}>
-                        or click to browse
+                        or click to browse (multiple files supported)
                     </p>
                 </div>
 

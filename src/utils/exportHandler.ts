@@ -2,6 +2,16 @@ import JSZip from 'jszip';
 import type { ParsedPack } from '@/types';
 
 /**
+ * Safely format version to string (handles both array and string formats)
+ */
+function formatVersion(version: [number, number, number] | string | number[]): string {
+    if (Array.isArray(version)) {
+        return version.join('.');
+    }
+    return String(version);
+}
+
+/**
  * Create an export zip file containing all packs ready for installation
  * The zip structure follows the Bedrock server pack format
  */
@@ -59,10 +69,10 @@ export async function createExportZip(packs: ParsedPack[]): Promise<Blob> {
 This package contains the following addons:
 
 Behavior Packs (${behaviorPacks.length}):
-${behaviorPacks.map(p => `  - ${p.manifest.header.name} v${p.manifest.header.version.join('.')}`).join('\n') || '  None'}
+${behaviorPacks.map(p => `  - ${p.manifest.header.name} v${formatVersion(p.manifest.header.version)}`).join('\n') || '  None'}
 
 Resource Packs (${resourcePacks.length}):
-${resourcePacks.map(p => `  - ${p.manifest.header.name} v${p.manifest.header.version.join('.')}`).join('\n') || '  None'}
+${resourcePacks.map(p => `  - ${p.manifest.header.name} v${formatVersion(p.manifest.header.version)}`).join('\n') || '  None'}
 
 INSTALLATION INSTRUCTIONS:
 ==========================
@@ -128,7 +138,7 @@ export function generateExportFileName(packs: ParsedPack[]): string {
             .replace(/[<>:"/\\|?*]/g, '')
             .replace(/\s+/g, '_')
             .trim();
-        const version = pack.manifest.header.version.join('.');
+        const version = formatVersion(pack.manifest.header.version);
         return `${name}_v${version}_export.zip`;
     }
 

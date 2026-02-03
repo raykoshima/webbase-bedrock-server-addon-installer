@@ -7,6 +7,16 @@ import type {
 } from '@/types';
 
 /**
+ * Safely format version to string (handles both array and string formats)
+ */
+function formatVersion(version: [number, number, number] | string | number[]): string {
+    if (Array.isArray(version)) {
+        return version.join('.');
+    }
+    return String(version);
+}
+
+/**
  * Strip JavaScript-style comments from JSON content
  * Minecraft Bedrock manifests often contain comments which are not valid JSON
  */
@@ -224,8 +234,8 @@ export async function installPack(
             // Check if it's the same version
             const existingManifest = await readManifestFromDirectory(packsDir, pack.folderName);
             if (existingManifest && existingManifest.header.uuid === pack.manifest.header.uuid) {
-                const existingVersion = existingManifest.header.version.join('.');
-                const newVersion = pack.manifest.header.version.join('.');
+                const existingVersion = formatVersion(existingManifest.header.version);
+                const newVersion = formatVersion(pack.manifest.header.version);
 
                 if (existingVersion === newVersion) {
                     return {
@@ -263,7 +273,7 @@ export async function installPack(
 
         return {
             success: true,
-            message: `Successfully installed "${pack.manifest.header.name}" v${pack.manifest.header.version.join('.')}`
+            message: `Successfully installed "${pack.manifest.header.name}" v${formatVersion(pack.manifest.header.version)}`
         };
     } catch (error) {
         return {

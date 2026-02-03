@@ -16,6 +16,7 @@ export default function Home() {
     pendingPacks,
     exportResults,
     importAddonFile,
+    importAddonFiles,
     exportAllPacks,
     exportSinglePackAction,
     clearPendingPacks,
@@ -52,7 +53,7 @@ export default function Home() {
             <h2 className={styles.stepTitle}>Upload Addon Files</h2>
           </div>
           <FileDropZone
-            onFileSelect={importAddonFile}
+            onFilesSelect={importAddonFiles}
             disabled={isLoading}
           />
         </section>
