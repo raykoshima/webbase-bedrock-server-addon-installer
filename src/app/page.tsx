@@ -71,22 +71,6 @@ export default function Home() {
 					</section>
 				)}
 
-				{/* Success Message */}
-				{exportResults.length > 0 && pendingPacks.length === 0 && (
-					<section className={styles.section}>
-						<div className={styles.successMessage}>
-							<span className={styles.successIcon}>✅</span>
-							<div className={styles.successText}>
-								<h3>Export สำเร็จ!</h3>
-								<p>
-									ไฟล์ addon ของคุณถูกดาวน์โหลดเรียบร้อยแล้ว แตกไฟล์ zip
-									และทำตามคำแนะนำในไฟล์เพื่อติดตั้ง
-								</p>
-							</div>
-						</div>
-					</section>
-				)}
-
 				{/* Footer */}
 				<footer className={styles.footer}>
 					<p className={styles.footerText}>

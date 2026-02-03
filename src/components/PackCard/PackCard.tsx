@@ -83,7 +83,13 @@ export function PackCard({
 			</div>
 
 			<div className={styles.actions}>
-				{variant === "pending" && onRemove && !exportStatus && (
+				{exportStatus === "success" && (
+					<span className={styles.successIcon}>✓</span>
+				)}
+				{exportStatus === "error" && (
+					<span className={styles.errorIcon}>✗</span>
+				)}
+				{variant === "pending" && onRemove && (
 					<button
 						type="button"
 						className={styles.removeButton}
@@ -92,12 +98,6 @@ export function PackCard({
 					>
 						×
 					</button>
-				)}
-				{exportStatus === "success" && (
-					<span className={styles.successIcon}>✓</span>
-				)}
-				{exportStatus === "error" && (
-					<span className={styles.errorIcon}>✗</span>
 				)}
 			</div>
 		</div>

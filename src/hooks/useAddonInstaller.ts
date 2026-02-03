@@ -170,13 +170,6 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 				const fileName = generateExportFileName([pack]);
 				downloadBlob(blob, fileName);
 
-				// Remove from pending after successful export
-				setPendingPacks((prev) =>
-					prev.filter(
-						(p) => p.manifest.header.uuid !== pack.manifest.header.uuid,
-					),
-				);
-
 				return {
 					success: true,
 					pack,
@@ -213,9 +206,6 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 			}));
 
 			setExportResults(results);
-
-			// Clear pending packs after successful export
-			setPendingPacks([]);
 		} catch (err) {
 			setError(`การ export pack ล้มเหลว: ${(err as Error).message}`);
 		} finally {
