@@ -107,54 +107,26 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 				return;
 			}
 
-			// Check for duplicates within the batch
-			const uuidToFiles = new Map<string, string[]>();
+			// Remove duplicates within the batch (keep first occurrence only)
+			const uniquePacks: ParsedPack[] = [];
+			const seenUuids = new Set<string>();
+
 			for (const pack of allPacks) {
 				const uuid = pack.manifest.header.uuid;
-				const existing = uuidToFiles.get(uuid) || [];
-				existing.push(pack.originalFileName);
-				uuidToFiles.set(uuid, existing);
-			}
-
-			// Find duplicates within batch
-			const batchDuplicates: string[] = [];
-			for (const [_uuid, filenames] of uuidToFiles) {
-				if (filenames.length > 1) {
-					batchDuplicates.push(`"${filenames.join('" และ "')}" (UUID เหมือนกัน)`);
+				if (!seenUuids.has(uuid)) {
+					uniquePacks.push(pack);
+					seenUuids.add(uuid);
 				}
 			}
 
-			if (batchDuplicates.length > 0) {
-				setError(`ตรวจพบ pack ซ้ำในไฟล์ที่อัพโหลด: ${batchDuplicates.join("; ")}`);
-				return;
-			}
-
-			// Check for duplicates against existing pending packs
-			const existingDuplicates: string[] = [];
+			// Add to pending packs, avoiding duplicates with existing packs
 			setPendingPacks((prev) => {
-				const existingUuids = new Map(
-					prev.map((p) => [p.manifest.header.uuid, p.originalFileName]),
+				const existingUuids = new Set(prev.map((p) => p.manifest.header.uuid));
+				const newPacks = uniquePacks.filter(
+					(p) => !existingUuids.has(p.manifest.header.uuid),
 				);
-
-				for (const pack of allPacks) {
-					const uuid = pack.manifest.header.uuid;
-					if (existingUuids.has(uuid)) {
-						existingDuplicates.push(
-							`"${pack.originalFileName}" ซ้ำกับ "${existingUuids.get(uuid)}" ที่มีอยู่แล้ว`,
-						);
-					}
-				}
-
-				if (existingDuplicates.length > 0) {
-					return prev; // Don't add any packs if duplicates found
-				}
-
-				return [...prev, ...allPacks];
+				return [...prev, ...newPacks];
 			});
-
-			if (existingDuplicates.length > 0) {
-				setError(`พบ pack ซ้ำ: ${existingDuplicates.join("; ")}`);
-			}
 		} catch (err) {
 			setError(`การแตกไฟล์ addon ล้มเหลว: ${(err as Error).message}`);
 		} finally {
