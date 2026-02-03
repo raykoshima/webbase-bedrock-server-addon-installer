@@ -231,7 +231,7 @@ export function PendingPacksList({
 			<div className={styles.header}>
 				<h2 className={styles.title}>
 					<span className={styles.titleIcon}>📦</span>
-					Ready to Export
+					พร้อม Export
 					<span className={styles.count}>{packs.length}</span>
 				</h2>
 				<div className={styles.actions}>
@@ -241,7 +241,7 @@ export function PendingPacksList({
 						onClick={onClearAll}
 						disabled={isExporting}
 					>
-						Clear All
+						ล้างทั้งหมด
 					</button>
 					<button
 						type="button"
@@ -252,7 +252,7 @@ export function PendingPacksList({
 						{isExporting ? (
 							<>
 								<span className={styles.spinner}></span>
-								Exporting...
+								กำลัง Export...
 							</>
 						) : (
 							<>
@@ -268,7 +268,7 @@ export function PendingPacksList({
 									<polyline points="7 10 12 15 17 10" />
 									<line x1="12" y1="15" x2="12" y2="3" />
 								</svg>
-								Export All as ZIP
+								Export ทั้งหมดเป็น ZIP
 							</>
 						)}
 					</button>
@@ -294,8 +294,8 @@ export function PendingPacksList({
 					<line x1="12" y1="8" x2="12.01" y2="8" />
 				</svg>
 				<p>
-					On desktop, drag packs to reorder. On mobile, use the arrow buttons.
-					The exported ZIP contains pack folders and JSON configuration files.
+					บนเดสก์ท็อป ลากเพื่อเรียงลำดับ pack บนมือถือ ใช้ปุ่มลูกศร ไฟล์ ZIP ที่ export
+					จะประกอบด้วยโฟลเดอร์ pack และไฟล์ JSON ที่ต้องใช้
 				</p>
 			</div>
 		</div>

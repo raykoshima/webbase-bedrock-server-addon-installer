@@ -84,11 +84,9 @@ export function FileDropZone({
 
 				<div className={styles.text}>
 					<p className={styles.primary}>
-						{isDragging ? "Drop addon files here" : "Drag & drop addon files"}
+						{isDragging ? "วางไฟล์ addon ที่นี่" : "ลากและวางไฟล์ addon"}
 					</p>
-					<p className={styles.secondary}>
-						or click to browse (multiple files supported)
-					</p>
+					<p className={styles.secondary}>หรือคลิกเพื่อเลือกไฟล์ (รองรับหลายไฟล์)</p>
 				</div>
 
 				<div className={styles.formats}>

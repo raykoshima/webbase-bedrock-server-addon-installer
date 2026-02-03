@@ -31,9 +31,9 @@ export default function Home() {
 					<div className={styles.logo}>
 						<span className={styles.logoIcon}>⚡</span>
 						<div className={styles.logoText}>
-							<h1 className={styles.title}>Bedrock Addon Installer</h1>
+							<h1 className={styles.title}>ติดตั้ง Addon สำหรับ Bedrock</h1>
 							<p className={styles.subtitle}>
-								Upload addons and export as ready-to-install packages
+								อัพโหลด addon และ export เป็นไฟล์พร้อมติดตั้ง
 							</p>
 						</div>
 					</div>
@@ -46,7 +46,7 @@ export default function Home() {
 				<section className={styles.section}>
 					<div className={styles.stepHeader}>
 						<span className={styles.stepNumber}>1</span>
-						<h2 className={styles.stepTitle}>Upload Addon Files</h2>
+						<h2 className={styles.stepTitle}>อัพโหลดไฟล์ Addon</h2>
 					</div>
 					<FileDropZone onFilesSelect={importAddonFiles} disabled={isLoading} />
 				</section>
@@ -56,7 +56,7 @@ export default function Home() {
 					<section className={styles.section}>
 						<div className={styles.stepHeader}>
 							<span className={styles.stepNumber}>2</span>
-							<h2 className={styles.stepTitle}>Review & Export</h2>
+							<h2 className={styles.stepTitle}>ตรวจสอบและ Export</h2>
 						</div>
 						<PendingPacksList
 							packs={pendingPacks}
@@ -77,10 +77,10 @@ export default function Home() {
 						<div className={styles.successMessage}>
 							<span className={styles.successIcon}>✅</span>
 							<div className={styles.successText}>
-								<h3>Export Complete!</h3>
+								<h3>Export สำเร็จ!</h3>
 								<p>
-									Your addon package has been downloaded. Extract the zip and
-									follow the included instructions to install.
+									ไฟล์ addon ของคุณถูกดาวน์โหลดเรียบร้อยแล้ว แตกไฟล์ zip
+									และทำตามคำแนะนำในไฟล์เพื่อติดตั้ง
 								</p>
 							</div>
 						</div>
@@ -90,13 +90,12 @@ export default function Home() {
 				{/* Footer */}
 				<footer className={styles.footer}>
 					<p className={styles.footerText}>
-						All processing happens in your browser. No files are uploaded to any
-						server.
+						ทุกอย่างทำงานในเบราว์เซอร์ของคุณ ไม่มีการอัพโหลดไฟล์ไปยังเซิร์ฟเวอร์ใดๆ
 					</p>
 					<p className={styles.footerLinks}>
-						<span className={styles.footerBadge}>Privacy First</span>
-						<span className={styles.footerBadge}>Zero Upload</span>
-						<span className={styles.footerBadge}>Open Source</span>
+						<span className={styles.footerBadge}>ปลอดภัย</span>
+						<span className={styles.footerBadge}>ไม่อัพโหลด</span>
+						<span className={styles.footerBadge}>โอเพนซอร์ส</span>
 					</p>
 				</footer>
 			</div>

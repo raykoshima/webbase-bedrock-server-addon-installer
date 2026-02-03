@@ -49,9 +49,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 
 	const importAddonFile = useCallback(async (file: File) => {
 		if (!isValidAddonFile(file)) {
-			setError(
-				"Invalid file format. Please select a .mcpack, .mcaddon, or .zip file.",
-			);
+			setError("รูปแบบไฟล์ไม่ถูกต้อง กรุณาเลือกไฟล์ .mcpack, .mcaddon หรือ .zip");
 			return;
 		}
 
@@ -62,7 +60,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 			const packs = await extractAddonFile(file);
 
 			if (packs.length === 0) {
-				setError("No valid packs found in the selected file.");
+				setError("ไม่พบ pack ที่ถูกต้องในไฟล์ที่เลือก");
 				return;
 			}
 
@@ -75,7 +73,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 				return [...prev, ...newPacks];
 			});
 		} catch (err) {
-			setError(`Failed to extract addon: ${(err as Error).message}`);
+			setError(`การแตกไฟล์ addon ล้มเหลว: ${(err as Error).message}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -85,9 +83,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 		const validFiles = files.filter(isValidAddonFile);
 
 		if (validFiles.length === 0) {
-			setError(
-				"No valid addon files selected. Please select .mcpack, .mcaddon, or .zip files.",
-			);
+			setError("ไม่มีไฟล์ addon ที่ถูกต้อง กรุณาเลือกไฟล์ .mcpack, .mcaddon หรือ .zip");
 			return;
 		}
 
@@ -107,7 +103,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 			}
 
 			if (allPacks.length === 0) {
-				setError("No valid packs found in the selected files.");
+				setError("ไม่พบ pack ที่ถูกต้องในไฟล์ที่เลือก");
 				return;
 			}
 
@@ -124,16 +120,12 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 			const batchDuplicates: string[] = [];
 			for (const [_uuid, filenames] of uuidToFiles) {
 				if (filenames.length > 1) {
-					batchDuplicates.push(
-						`"${filenames.join('" and "')}" (same pack UUID)`,
-					);
+					batchDuplicates.push(`"${filenames.join('" และ "')}" (UUID เหมือนกัน)`);
 				}
 			}
 
 			if (batchDuplicates.length > 0) {
-				setError(
-					`Duplicate packs detected in uploaded files: ${batchDuplicates.join("; ")}`,
-				);
+				setError(`ตรวจพบ pack ซ้ำในไฟล์ที่อัพโหลด: ${batchDuplicates.join("; ")}`);
 				return;
 			}
 
@@ -148,7 +140,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 					const uuid = pack.manifest.header.uuid;
 					if (existingUuids.has(uuid)) {
 						existingDuplicates.push(
-							`"${pack.originalFileName}" matches already queued "${existingUuids.get(uuid)}"`,
+							`"${pack.originalFileName}" ซ้ำกับ "${existingUuids.get(uuid)}" ที่มีอยู่แล้ว`,
 						);
 					}
 				}
@@ -161,10 +153,10 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 			});
 
 			if (existingDuplicates.length > 0) {
-				setError(`Duplicate packs: ${existingDuplicates.join("; ")}`);
+				setError(`พบ pack ซ้ำ: ${existingDuplicates.join("; ")}`);
 			}
 		} catch (err) {
-			setError(`Failed to extract addons: ${(err as Error).message}`);
+			setError(`การแตกไฟล์ addon ล้มเหลว: ${(err as Error).message}`);
 		} finally {
 			setIsLoading(false);
 		}
@@ -188,13 +180,13 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 				return {
 					success: true,
 					pack,
-					message: `Successfully exported "${pack.manifest.header.name}"`,
+					message: `Export "${pack.manifest.header.name}" สำเร็จ`,
 				};
 			} catch (err) {
 				return {
 					success: false,
 					pack,
-					message: `Failed to export: ${(err as Error).message}`,
+					message: `การ export ล้มเหลว: ${(err as Error).message}`,
 				};
 			} finally {
 				setIsLoading(false);
@@ -217,7 +209,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 			const results: ExportResult[] = pendingPacks.map((pack) => ({
 				success: true,
 				pack,
-				message: `Successfully exported "${pack.manifest.header.name}"`,
+				message: `Export "${pack.manifest.header.name}" สำเร็จ`,
 			}));
 
 			setExportResults(results);
@@ -225,7 +217,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 			// Clear pending packs after successful export
 			setPendingPacks([]);
 		} catch (err) {
-			setError(`Failed to export packs: ${(err as Error).message}`);
+			setError(`การ export pack ล้มเหลว: ${(err as Error).message}`);
 		} finally {
 			setIsLoading(false);
 		}
