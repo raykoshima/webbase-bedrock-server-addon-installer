@@ -1,66 +1,127 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { useAddonInstaller } from '@/hooks';
+import {
+  DirectorySelector,
+  FileDropZone,
+  PendingPacksList,
+  InstalledPacksList,
+  ErrorNotification
+} from '@/components';
+import styles from './page.module.css';
 
 export default function Home() {
+  const {
+    isSupported,
+    worldDirectory,
+    directoryName,
+    isLoading,
+    error,
+    pendingPacks,
+    installedPacks,
+    installationResults,
+    selectWorldDirectory,
+    importAddonFile,
+    installAllPacks,
+    installSinglePack,
+    refreshInstalledPacks,
+    clearPendingPacks,
+    clearError,
+    removePendingPack
+  } = useAddonInstaller();
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className={styles.main}>
+      <div className={styles.container}>
+        {/* Header */}
+        <header className={styles.header}>
+          <div className={styles.logo}>
+            <span className={styles.logoIcon}>⚡</span>
+            <div className={styles.logoText}>
+              <h1 className={styles.title}>Bedrock Addon Installer</h1>
+              <p className={styles.subtitle}>Browser-powered addon management for Bedrock servers</p>
+            </div>
+          </div>
+        </header>
+
+        {/* Error Notification */}
+        {error && (
+          <ErrorNotification
+            message={error}
+            onDismiss={clearError}
+          />
+        )}
+
+        {/* Step 1: Directory Selection */}
+        <section className={styles.section}>
+          <div className={styles.stepHeader}>
+            <span className={styles.stepNumber}>1</span>
+            <h2 className={styles.stepTitle}>Select World Folder</h2>
+          </div>
+          <DirectorySelector
+            directoryName={directoryName}
+            onSelect={selectWorldDirectory}
+            isLoading={isLoading}
+            isSupported={isSupported}
+          />
+        </section>
+
+        {/* Step 2: Import Addons (only show when directory is selected) */}
+        {worldDirectory && (
+          <section className={styles.section}>
+            <div className={styles.stepHeader}>
+              <span className={styles.stepNumber}>2</span>
+              <h2 className={styles.stepTitle}>Import Addon Files</h2>
+            </div>
+            <FileDropZone
+              onFileSelect={importAddonFile}
+              disabled={isLoading}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          </section>
+        )}
+
+        {/* Step 3: Review and Install Pending Packs */}
+        {worldDirectory && pendingPacks.length > 0 && (
+          <section className={styles.section}>
+            <div className={styles.stepHeader}>
+              <span className={styles.stepNumber}>3</span>
+              <h2 className={styles.stepTitle}>Review & Install</h2>
+            </div>
+            <PendingPacksList
+              packs={pendingPacks}
+              onRemovePack={removePendingPack}
+              onInstallPack={installSinglePack}
+              onInstallAll={installAllPacks}
+              onClearAll={clearPendingPacks}
+              installationResults={installationResults}
+              isInstalling={isLoading}
+            />
+          </section>
+        )}
+
+        {/* Installed Addons List */}
+        {worldDirectory && (
+          <section className={styles.section}>
+            <InstalledPacksList
+              packs={installedPacks}
+              isLoading={isLoading}
+              onRefresh={refreshInstalledPacks}
+            />
+          </section>
+        )}
+
+        {/* Footer */}
+        <footer className={styles.footer}>
+          <p className={styles.footerText}>
+            All processing happens in your browser. No files are uploaded to any server.
+          </p>
+          <p className={styles.footerLinks}>
+            <span className={styles.footerBadge}>Privacy First</span>
+            <span className={styles.footerBadge}>Zero Upload</span>
+            <span className={styles.footerBadge}>Open Source</span>
+          </p>
+        </footer>
+      </div>
+    </main>
   );
 }
