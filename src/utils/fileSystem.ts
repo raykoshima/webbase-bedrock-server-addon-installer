@@ -7,6 +7,80 @@ import type {
 } from '@/types';
 
 /**
+ * Strip JavaScript-style comments from JSON content
+ * Minecraft Bedrock manifests often contain comments which are not valid JSON
+ */
+function stripJsonComments(content: string): string {
+    let result = '';
+    let inString = false;
+    let inSingleLineComment = false;
+    let inMultiLineComment = false;
+    let i = 0;
+
+    while (i < content.length) {
+        const char = content[i];
+        const nextChar = content[i + 1];
+
+        if (inSingleLineComment) {
+            if (char === '\n') {
+                inSingleLineComment = false;
+                result += char;
+            }
+            i++;
+            continue;
+        }
+
+        if (inMultiLineComment) {
+            if (char === '*' && nextChar === '/') {
+                inMultiLineComment = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            result += char;
+            if (char === '\\' && i + 1 < content.length) {
+                result += nextChar;
+                i += 2;
+                continue;
+            }
+            if (char === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        if (char === '"') {
+            inString = true;
+            result += char;
+            i++;
+            continue;
+        }
+
+        if (char === '/' && nextChar === '/') {
+            inSingleLineComment = true;
+            i += 2;
+            continue;
+        }
+
+        if (char === '/' && nextChar === '*') {
+            inMultiLineComment = true;
+            i += 2;
+            continue;
+        }
+
+        result += char;
+        i++;
+    }
+
+    return result;
+}
+
+/**
  * Request directory access from the user
  */
 export async function requestDirectoryAccess(): Promise<FileSystemDirectoryHandle | null> {
@@ -88,7 +162,8 @@ async function writeFile(
 ): Promise<void> {
     const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
     const writable = await fileHandle.createWritable();
-    await writable.write(data);
+    // Type assertion needed due to TypeScript's strict ArrayBuffer typing
+    await writable.write(new Blob([data as unknown as BlobPart]));
     await writable.close();
 }
 
@@ -209,7 +284,7 @@ async function readManifestFromDirectory(
         const packDir = await packsDir.getDirectoryHandle(folderName);
         const manifestContent = await readFileAsText(packDir, 'manifest.json');
         if (manifestContent) {
-            return JSON.parse(manifestContent);
+            return JSON.parse(stripJsonComments(manifestContent));
         }
     } catch {
         // Ignore errors
@@ -239,7 +314,7 @@ async function registerPackInWorld(
             const encoder = new TextEncoder();
             await writeFile(worldDirHandle, backupName, encoder.encode(existingContent));
 
-            entries = JSON.parse(existingContent);
+            entries = JSON.parse(stripJsonComments(existingContent));
         } catch {
             entries = [];
         }
@@ -291,7 +366,7 @@ export async function scanInstalledPacks(
                         const manifestContent = await readFileAsText(packDir, 'manifest.json');
 
                         if (manifestContent) {
-                            const manifest: PackManifest = JSON.parse(manifestContent);
+                            const manifest: PackManifest = JSON.parse(stripJsonComments(manifestContent));
 
                             // Try to load icon
                             const iconBlob = await readFileAsBlob(packDir, 'pack_icon.png');

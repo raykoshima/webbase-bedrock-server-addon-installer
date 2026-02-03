@@ -2,6 +2,84 @@ import JSZip from 'jszip';
 import type { PackManifest, ParsedPack, PackType } from '@/types';
 
 /**
+ * Strip JavaScript-style comments from JSON content
+ * Minecraft Bedrock manifests often contain comments which are not valid JSON
+ */
+function stripJsonComments(content: string): string {
+    // Remove single-line comments (// ...)
+    // Be careful not to remove // inside strings
+    let result = '';
+    let inString = false;
+    let inSingleLineComment = false;
+    let inMultiLineComment = false;
+    let i = 0;
+
+    while (i < content.length) {
+        const char = content[i];
+        const nextChar = content[i + 1];
+
+        if (inSingleLineComment) {
+            if (char === '\n') {
+                inSingleLineComment = false;
+                result += char;
+            }
+            i++;
+            continue;
+        }
+
+        if (inMultiLineComment) {
+            if (char === '*' && nextChar === '/') {
+                inMultiLineComment = false;
+                i += 2;
+                continue;
+            }
+            i++;
+            continue;
+        }
+
+        if (inString) {
+            result += char;
+            // Check for escape sequences
+            if (char === '\\' && i + 1 < content.length) {
+                result += nextChar;
+                i += 2;
+                continue;
+            }
+            if (char === '"') {
+                inString = false;
+            }
+            i++;
+            continue;
+        }
+
+        // Not in string or comment
+        if (char === '"') {
+            inString = true;
+            result += char;
+            i++;
+            continue;
+        }
+
+        if (char === '/' && nextChar === '/') {
+            inSingleLineComment = true;
+            i += 2;
+            continue;
+        }
+
+        if (char === '/' && nextChar === '*') {
+            inMultiLineComment = true;
+            i += 2;
+            continue;
+        }
+
+        result += char;
+        i++;
+    }
+
+    return result;
+}
+
+/**
  * Extract and parse an addon file (.mcpack or .mcaddon)
  * Both formats are ZIP files with renamed extensions
  */
@@ -25,7 +103,9 @@ export async function extractAddonFile(file: File): Promise<ParsedPack[]> {
             const manifestContent = await zip.file(manifestPath)?.async('string');
             if (!manifestContent) continue;
 
-            const manifest: PackManifest = JSON.parse(manifestContent);
+            // Strip comments before parsing (Bedrock manifests often have comments)
+            const cleanedContent = stripJsonComments(manifestContent);
+            const manifest: PackManifest = JSON.parse(cleanedContent);
             const packType = determinePackType(manifest);
 
             // Get the directory containing the manifest
@@ -60,7 +140,9 @@ export async function extractAddonFile(file: File): Promise<ParsedPack[]> {
 
                     // Check for pack icon
                     if (relativePath.toLowerCase() === 'pack_icon.png') {
-                        iconBlob = new Blob([data], { type: 'image/png' });
+                        // Create a copy to ensure proper ArrayBuffer type
+                        const iconData = new Uint8Array(data);
+                        iconBlob = new Blob([iconData], { type: 'image/png' });
                     }
                 }
             }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
     requestDirectoryAccess,
     verifyBedrockWorldDirectory,
@@ -15,6 +15,7 @@ import type { ParsedPack, InstalledPack, InstallationResult } from '@/types';
 export interface UseAddonInstallerReturn {
     // State
     isSupported: boolean;
+    isMounted: boolean;
     worldDirectory: FileSystemDirectoryHandle | null;
     directoryName: string | null;
     isLoading: boolean;
@@ -35,6 +36,8 @@ export interface UseAddonInstallerReturn {
 }
 
 export function useAddonInstaller(): UseAddonInstallerReturn {
+    const [isMounted, setIsMounted] = useState(false);
+    const [isSupported, setIsSupported] = useState(true); // Default to true to avoid flash
     const [worldDirectory, setWorldDirectory] = useState<FileSystemDirectoryHandle | null>(null);
     const [directoryName, setDirectoryName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +46,11 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
     const [installedPacks, setInstalledPacks] = useState<InstalledPack[]>([]);
     const [installationResults, setInstallationResults] = useState<InstallationResult[]>([]);
 
-    const isSupported = typeof window !== 'undefined' && isFileSystemAccessSupported();
+    // Check browser support only on client side to avoid hydration mismatch
+    useEffect(() => {
+        setIsMounted(true);
+        setIsSupported(isFileSystemAccessSupported());
+    }, []);
 
     const selectWorldDirectory = useCallback(async () => {
         setIsLoading(true);
@@ -179,6 +186,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 
     return {
         isSupported,
+        isMounted,
         worldDirectory,
         directoryName,
         isLoading,

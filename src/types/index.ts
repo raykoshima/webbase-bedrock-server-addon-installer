@@ -80,4 +80,25 @@ declare global {
         queryPermission(descriptor: FileSystemPermissionDescriptor): Promise<PermissionState>;
         requestPermission(descriptor: FileSystemPermissionDescriptor): Promise<PermissionState>;
     }
+
+    interface FileSystemDirectoryHandle {
+        values(): AsyncIterableIterator<FileSystemHandle>;
+        getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<FileSystemDirectoryHandle>;
+        getFileHandle(name: string, options?: { create?: boolean }): Promise<FileSystemFileHandle>;
+    }
+
+    interface FileSystemFileHandle {
+        getFile(): Promise<File>;
+        createWritable(): Promise<FileSystemWritableFileStream>;
+    }
+
+    interface FileSystemWritableFileStream extends WritableStream {
+        write(data: BufferSource | Blob | string): Promise<void>;
+        close(): Promise<void>;
+    }
+
+    interface Window {
+        showDirectoryPicker(options?: { mode?: 'read' | 'readwrite' }): Promise<FileSystemDirectoryHandle>;
+    }
 }
+
