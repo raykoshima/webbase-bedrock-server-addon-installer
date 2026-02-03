@@ -1,1 +1,1 @@
-export { PendingPacksList, default } from './PendingPacksList';
+export { default, PendingPacksList } from "./PendingPacksList";

@@ -1,222 +1,229 @@
 .main {
-  min-height: 100vh;
-  padding: 1.5rem 1rem;
+	min-height: 100vh;
+	padding: 1.5rem 1rem;
 }
 
 .container {
-  max-width: 720px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
+	max-width: 720px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
 }
 
 /* Header */
 .header {
-  text-align: center;
-  padding: 1rem 0 0.5rem;
+	text-align: center;
+	padding: 1rem 0 0.5rem;
 }
 
 .logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
 }
 
 .logoIcon {
-  font-size: 2.5rem;
-  line-height: 1;
-  animation: pulse 2s infinite;
+	font-size: 2.5rem;
+	line-height: 1;
+	animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
 
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
+	50% {
+		opacity: 0.8;
+		transform: scale(1.05);
+	}
 }
 
 .logoText {
-  text-align: left;
+	text-align: left;
 }
 
 .title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #f8fafc, #cbd5e1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.02em;
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 800;
+	background: linear-gradient(135deg, #f8fafc, #cbd5e1);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	letter-spacing: -0.02em;
 }
 
 .subtitle {
-  margin: 0.25rem 0 0;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  font-weight: 400;
+	margin: 0.25rem 0 0;
+	font-size: 0.85rem;
+	color: var(--color-text-muted);
+	font-weight: 400;
 }
 
 /* Sections */
 .section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 }
 
 .stepHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 }
 
 .stepNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(79, 70, 229, 0.15));
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #a5b4fc;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	background: linear-gradient(
+		135deg,
+		rgba(99, 102, 241, 0.2),
+		rgba(79, 70, 229, 0.15)
+	);
+	border: 1px solid rgba(99, 102, 241, 0.3);
+	border-radius: 8px;
+	font-size: 0.85rem;
+	font-weight: 700;
+	color: #a5b4fc;
 }
 
 .stepTitle {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #e2e8f0;
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #e2e8f0;
 }
 
 /* Success Message */
 .successMessage {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.1));
-  border: 1px solid rgba(34, 197, 94, 0.25);
-  border-radius: 12px;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+	padding: 1.25rem;
+	background: linear-gradient(
+		135deg,
+		rgba(34, 197, 94, 0.15),
+		rgba(16, 185, 129, 0.1)
+	);
+	border: 1px solid rgba(34, 197, 94, 0.25);
+	border-radius: 12px;
 }
 
 .successIcon {
-  font-size: 1.5rem;
-  line-height: 1;
-  flex-shrink: 0;
+	font-size: 1.5rem;
+	line-height: 1;
+	flex-shrink: 0;
 }
 
 .successText {
-  flex: 1;
+	flex: 1;
 }
 
 .successText h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #86efac;
+	margin: 0 0 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #86efac;
 }
 
 .successText p {
-  margin: 0;
-  font-size: 0.875rem;
-  color: rgba(134, 239, 172, 0.8);
-  line-height: 1.5;
+	margin: 0;
+	font-size: 0.875rem;
+	color: rgba(134, 239, 172, 0.8);
+	line-height: 1.5;
 }
 
 /* Footer */
 .footer {
-  text-align: center;
-  padding: 1.5rem 0 0.5rem;
-  margin-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+	text-align: center;
+	padding: 1.5rem 0 0.5rem;
+	margin-top: 1rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .footerText {
-  margin: 0 0 1rem;
-  font-size: 0.8rem;
-  color: rgba(148, 163, 184, 0.6);
+	margin: 0 0 1rem;
+	font-size: 0.8rem;
+	color: rgba(148, 163, 184, 0.6);
 }
 
 .footerLinks {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 0;
 }
 
 .footerBadge {
-  display: inline-flex;
-  padding: 0.35rem 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 100px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: rgba(148, 163, 184, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+	display: inline-flex;
+	padding: 0.35rem 0.75rem;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 100px;
+	font-size: 0.7rem;
+	font-weight: 500;
+	color: rgba(148, 163, 184, 0.7);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 /* Mobile optimizations */
 @media (max-width: 480px) {
-  .main {
-    padding: 1rem 0.75rem;
-  }
+	.main {
+		padding: 1rem 0.75rem;
+	}
 
-  .container {
-    gap: 1.5rem;
-  }
+	.container {
+		gap: 1.5rem;
+	}
 
-  .logo {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+	.logo {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
 
-  .logoText {
-    text-align: center;
-  }
+	.logoText {
+		text-align: center;
+	}
 
-  .logoIcon {
-    font-size: 2rem;
-  }
+	.logoIcon {
+		font-size: 2rem;
+	}
 
-  .title {
-    font-size: 1.3rem;
-  }
+	.title {
+		font-size: 1.3rem;
+	}
 
-  .subtitle {
-    font-size: 0.8rem;
-  }
+	.subtitle {
+		font-size: 0.8rem;
+	}
 }
 
 /* Tablet and up */
 @media (min-width: 768px) {
-  .main {
-    padding: 2rem 1.5rem;
-  }
+	.main {
+		padding: 2rem 1.5rem;
+	}
 
-  .container {
-    gap: 2rem;
-  }
+	.container {
+		gap: 2rem;
+	}
 
-  .title {
-    font-size: 1.75rem;
-  }
+	.title {
+		font-size: 1.75rem;
+	}
 
-  .logoIcon {
-    font-size: 3rem;
-  }
+	.logoIcon {
+		font-size: 3rem;
+	}
 }

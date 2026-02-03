@@ -1,2 +1,2 @@
-export { useAddonInstaller } from './useAddonInstaller';
-export { usePackIcon, useDragDrop } from './usePackIcon';
+export { useAddonInstaller } from "./useAddonInstaller";
+export { useDragDrop, usePackIcon } from "./usePackIcon";

@@ -1,190 +1,217 @@
 .dropZone {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 180px;
-    padding: 2rem 1.5rem;
-    background: linear-gradient(135deg, rgba(25, 25, 35, 0.8), rgba(15, 15, 25, 0.9));
-    border: 2px dashed rgba(99, 102, 241, 0.3);
-    border-radius: 16px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 180px;
+	padding: 2rem 1.5rem;
+	background: linear-gradient(
+		135deg,
+		rgba(25, 25, 35, 0.8),
+		rgba(15, 15, 25, 0.9)
+	);
+	border: 2px dashed rgba(99, 102, 241, 0.3);
+	border-radius: 16px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	overflow: hidden;
 }
 
 .dropZone:hover {
-    border-color: rgba(99, 102, 241, 0.6);
-    background: linear-gradient(135deg, rgba(30, 30, 45, 0.8), rgba(20, 20, 35, 0.9));
+	border-color: rgba(99, 102, 241, 0.6);
+	background: linear-gradient(
+		135deg,
+		rgba(30, 30, 45, 0.8),
+		rgba(20, 20, 35, 0.9)
+	);
 }
 
 .dropZone:focus {
-    outline: none;
-    border-color: rgba(99, 102, 241, 0.8);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+	outline: none;
+	border-color: rgba(99, 102, 241, 0.8);
+	box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .dropZone.dragging {
-    border-color: #6366f1;
-    border-style: solid;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.1));
-    transform: scale(1.01);
+	border-color: #6366f1;
+	border-style: solid;
+	background: linear-gradient(
+		135deg,
+		rgba(99, 102, 241, 0.15),
+		rgba(79, 70, 229, 0.1)
+	);
+	transform: scale(1.01);
 }
 
 .dropZone.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: none;
 }
 
 .hiddenInput {
-    display: none;
+	display: none;
 }
 
 .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    text-align: center;
-    z-index: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	text-align: center;
+	z-index: 1;
 }
 
 .iconWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(79, 70, 229, 0.15));
-    border-radius: 16px;
-    transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 64px;
+	background: linear-gradient(
+		135deg,
+		rgba(99, 102, 241, 0.2),
+		rgba(79, 70, 229, 0.15)
+	);
+	border-radius: 16px;
+	transition: all 0.3s ease;
 }
 
 .dropZone:hover .iconWrapper {
-    transform: translateY(-4px);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.25));
+	transform: translateY(-4px);
+	background: linear-gradient(
+		135deg,
+		rgba(99, 102, 241, 0.3),
+		rgba(79, 70, 229, 0.25)
+	);
 }
 
 .dropZone.dragging .iconWrapper {
-    transform: translateY(-8px) scale(1.1);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(79, 70, 229, 0.35));
+	transform: translateY(-8px) scale(1.1);
+	background: linear-gradient(
+		135deg,
+		rgba(99, 102, 241, 0.4),
+		rgba(79, 70, 229, 0.35)
+	);
 }
 
 .icon {
-    width: 32px;
-    height: 32px;
-    color: #a5b4fc;
-    transition: all 0.3s ease;
+	width: 32px;
+	height: 32px;
+	color: #a5b4fc;
+	transition: all 0.3s ease;
 }
 
 .dropZone:hover .icon {
-    color: #c7d2fe;
+	color: #c7d2fe;
 }
 
 .dropZone.dragging .icon {
-    color: #e0e7ff;
-    animation: bounce 0.6s ease infinite;
+	color: #e0e7ff;
+	animation: bounce 0.6s ease infinite;
 }
 
 @keyframes bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
 
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-4px);
-    }
+	50% {
+		transform: translateY(-4px);
+	}
 }
 
 .text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 }
 
 .primary {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #e2e8f0;
-    transition: color 0.3s ease;
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #e2e8f0;
+	transition: color 0.3s ease;
 }
 
 .dropZone.dragging .primary {
-    color: #c7d2fe;
+	color: #c7d2fe;
 }
 
 .secondary {
-    margin: 0;
-    font-size: 0.9rem;
-    color: rgba(148, 163, 184, 0.8);
+	margin: 0;
+	font-size: 0.9rem;
+	color: rgba(148, 163, 184, 0.8);
 }
 
 .formats {
-    display: flex;
-    gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 }
 
 .format {
-    display: inline-flex;
-    padding: 0.3rem 0.8rem;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #a5b4fc;
-    font-family: 'SF Mono', 'Fira Code', monospace;
+	display: inline-flex;
+	padding: 0.3rem 0.8rem;
+	background: rgba(99, 102, 241, 0.1);
+	border: 1px solid rgba(99, 102, 241, 0.2);
+	border-radius: 20px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: #a5b4fc;
+	font-family: "SF Mono", "Fira Code", monospace;
 }
 
 .glowEffect {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 200px;
+	height: 200px;
+	background: radial-gradient(
+		circle,
+		rgba(99, 102, 241, 0.15) 0%,
+		transparent 70%
+	);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.3s ease;
 }
 
 .dropZone:hover .glowEffect {
-    opacity: 1;
+	opacity: 1;
 }
 
 .dropZone.dragging .glowEffect {
-    opacity: 1;
-    width: 300px;
-    height: 300px;
+	opacity: 1;
+	width: 300px;
+	height: 300px;
 }
 
 /* Mobile optimizations */
 @media (max-width: 480px) {
-    .dropZone {
-        min-height: 140px;
-        padding: 1.5rem 1rem;
-    }
+	.dropZone {
+		min-height: 140px;
+		padding: 1.5rem 1rem;
+	}
 
-    .iconWrapper {
-        width: 52px;
-        height: 52px;
-    }
+	.iconWrapper {
+		width: 52px;
+		height: 52px;
+	}
 
-    .icon {
-        width: 26px;
-        height: 26px;
-    }
+	.icon {
+		width: 26px;
+		height: 26px;
+	}
 
-    .primary {
-        font-size: 1rem;
-    }
+	.primary {
+		font-size: 1rem;
+	}
 
-    .secondary {
-        font-size: 0.8rem;
-    }
+	.secondary {
+		font-size: 0.8rem;
+	}
 }

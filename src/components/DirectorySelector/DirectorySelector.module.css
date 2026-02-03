@@ -1,196 +1,208 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 }
 
 .unsupported {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 2rem;
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 2rem;
+	background: linear-gradient(
+		135deg,
+		rgba(239, 68, 68, 0.1),
+		rgba(220, 38, 38, 0.05)
+	);
+	border: 1px solid rgba(239, 68, 68, 0.3);
+	border-radius: 16px;
 }
 
 .unsupportedIcon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+	font-size: 2.5rem;
+	margin-bottom: 1rem;
 }
 
 .unsupportedTitle {
-    margin: 0 0 0.5rem;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fca5a5;
+	margin: 0 0 0.5rem;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #fca5a5;
 }
 
 .unsupportedText {
-    margin: 0 0 0.5rem;
-    font-size: 0.9rem;
-    color: rgba(252, 165, 165, 0.8);
-    max-width: 400px;
-    line-height: 1.5;
+	margin: 0 0 0.5rem;
+	font-size: 0.9rem;
+	color: rgba(252, 165, 165, 0.8);
+	max-width: 400px;
+	line-height: 1.5;
 }
 
 .unsupportedHint {
-    margin: 0;
-    font-size: 0.85rem;
-    color: rgba(148, 163, 184, 0.6);
+	margin: 0;
+	font-size: 0.85rem;
+	color: rgba(148, 163, 184, 0.6);
 }
 
 .selected {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05));
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    border-radius: 12px;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1rem;
+	background: linear-gradient(
+		135deg,
+		rgba(34, 197, 94, 0.1),
+		rgba(22, 163, 74, 0.05)
+	);
+	border: 1px solid rgba(34, 197, 94, 0.3);
+	border-radius: 12px;
 }
 
 .folderIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.3));
-    border-radius: 10px;
-    flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	background: linear-gradient(
+		135deg,
+		rgba(34, 197, 94, 0.2),
+		rgba(22, 163, 74, 0.3)
+	);
+	border-radius: 10px;
+	flex-shrink: 0;
 }
 
 .folderIcon svg {
-    width: 24px;
-    height: 24px;
-    color: #4ade80;
+	width: 24px;
+	height: 24px;
+	color: #4ade80;
 }
 
 .selectedInfo {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
 }
 
 .selectedLabel {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: rgba(74, 222, 128, 0.8);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: rgba(74, 222, 128, 0.8);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .selectedName {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #f0fdf4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #f0fdf4;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .changeButton {
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: #e2e8f0;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
+	padding: 0.5rem 1rem;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 8px;
+	color: #e2e8f0;
+	font-size: 0.85rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
 }
 
 .changeButton:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgba(255, 255, 255, 0.3);
 }
 
 .changeButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 .selectButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	width: 100%;
+	padding: 1rem 1.5rem;
+	background: linear-gradient(135deg, #6366f1, #4f46e5);
+	border: none;
+	border-radius: 12px;
+	color: white;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
 }
 
 .selectButton:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+	transform: translateY(-2px);
+	box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
 }
 
 .selectButton:active:not(:disabled) {
-    transform: translateY(0);
+	transform: translateY(0);
 }
 
 .selectButton:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
+	opacity: 0.7;
+	cursor: not-allowed;
+	transform: none;
 }
 
 .buttonIcon {
-    width: 22px;
-    height: 22px;
+	width: 22px;
+	height: 22px;
 }
 
 .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: white;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .hint {
-    margin: 0;
-    font-size: 0.85rem;
-    color: rgba(148, 163, 184, 0.7);
-    text-align: center;
+	margin: 0;
+	font-size: 0.85rem;
+	color: rgba(148, 163, 184, 0.7);
+	text-align: center;
 }
 
 /* Mobile optimizations */
 @media (max-width: 480px) {
-    .selected {
-        flex-wrap: wrap;
-    }
+	.selected {
+		flex-wrap: wrap;
+	}
 
-    .selectedInfo {
-        flex-basis: calc(100% - 56px);
-    }
+	.selectedInfo {
+		flex-basis: calc(100% - 56px);
+	}
 
-    .changeButton {
-        margin-left: auto;
-    }
+	.changeButton {
+		margin-left: auto;
+	}
 
-    .selectButton {
-        padding: 0.875rem 1.25rem;
-        font-size: 0.95rem;
-    }
+	.selectButton {
+		padding: 0.875rem 1.25rem;
+		font-size: 0.95rem;
+	}
 }

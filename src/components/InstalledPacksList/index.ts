@@ -1,1 +1,1 @@
-export { InstalledPacksList, default } from './InstalledPacksList';
+export { default, InstalledPacksList } from "./InstalledPacksList";

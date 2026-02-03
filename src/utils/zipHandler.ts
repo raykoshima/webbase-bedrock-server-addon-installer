@@ -1,82 +1,82 @@
-import JSZip from 'jszip';
-import type { PackManifest, ParsedPack, PackType } from '@/types';
+import JSZip from "jszip";
+import type { PackManifest, PackType, ParsedPack } from "@/types";
 
 /**
  * Strip JavaScript-style comments from JSON content
  * Minecraft Bedrock manifests often contain comments which are not valid JSON
  */
 function stripJsonComments(content: string): string {
-    // Remove single-line comments (// ...)
-    // Be careful not to remove // inside strings
-    let result = '';
-    let inString = false;
-    let inSingleLineComment = false;
-    let inMultiLineComment = false;
-    let i = 0;
+	// Remove single-line comments (// ...)
+	// Be careful not to remove // inside strings
+	let result = "";
+	let inString = false;
+	let inSingleLineComment = false;
+	let inMultiLineComment = false;
+	let i = 0;
 
-    while (i < content.length) {
-        const char = content[i];
-        const nextChar = content[i + 1];
+	while (i < content.length) {
+		const char = content[i];
+		const nextChar = content[i + 1];
 
-        if (inSingleLineComment) {
-            if (char === '\n') {
-                inSingleLineComment = false;
-                result += char;
-            }
-            i++;
-            continue;
-        }
+		if (inSingleLineComment) {
+			if (char === "\n") {
+				inSingleLineComment = false;
+				result += char;
+			}
+			i++;
+			continue;
+		}
 
-        if (inMultiLineComment) {
-            if (char === '*' && nextChar === '/') {
-                inMultiLineComment = false;
-                i += 2;
-                continue;
-            }
-            i++;
-            continue;
-        }
+		if (inMultiLineComment) {
+			if (char === "*" && nextChar === "/") {
+				inMultiLineComment = false;
+				i += 2;
+				continue;
+			}
+			i++;
+			continue;
+		}
 
-        if (inString) {
-            result += char;
-            // Check for escape sequences
-            if (char === '\\' && i + 1 < content.length) {
-                result += nextChar;
-                i += 2;
-                continue;
-            }
-            if (char === '"') {
-                inString = false;
-            }
-            i++;
-            continue;
-        }
+		if (inString) {
+			result += char;
+			// Check for escape sequences
+			if (char === "\\" && i + 1 < content.length) {
+				result += nextChar;
+				i += 2;
+				continue;
+			}
+			if (char === '"') {
+				inString = false;
+			}
+			i++;
+			continue;
+		}
 
-        // Not in string or comment
-        if (char === '"') {
-            inString = true;
-            result += char;
-            i++;
-            continue;
-        }
+		// Not in string or comment
+		if (char === '"') {
+			inString = true;
+			result += char;
+			i++;
+			continue;
+		}
 
-        if (char === '/' && nextChar === '/') {
-            inSingleLineComment = true;
-            i += 2;
-            continue;
-        }
+		if (char === "/" && nextChar === "/") {
+			inSingleLineComment = true;
+			i += 2;
+			continue;
+		}
 
-        if (char === '/' && nextChar === '*') {
-            inMultiLineComment = true;
-            i += 2;
-            continue;
-        }
+		if (char === "/" && nextChar === "*") {
+			inMultiLineComment = true;
+			i += 2;
+			continue;
+		}
 
-        result += char;
-        i++;
-    }
+		result += char;
+		i++;
+	}
 
-    return result;
+	return result;
 }
 
 /**
@@ -84,159 +84,176 @@ function stripJsonComments(content: string): string {
  * .mcaddon files can contain .mcpack files inside them
  */
 export async function extractAddonFile(file: File): Promise<ParsedPack[]> {
-    const arrayBuffer = await file.arrayBuffer();
-    return extractFromZip(arrayBuffer, file.name);
+	const arrayBuffer = await file.arrayBuffer();
+	return extractFromZip(arrayBuffer, file.name);
 }
 
 /**
  * Extract packs from a ZIP buffer
  */
-async function extractFromZip(arrayBuffer: ArrayBuffer, originalFileName: string): Promise<ParsedPack[]> {
-    const zip = await JSZip.loadAsync(arrayBuffer);
+async function extractFromZip(
+	arrayBuffer: ArrayBuffer,
+	originalFileName: string,
+): Promise<ParsedPack[]> {
+	const zip = await JSZip.loadAsync(arrayBuffer);
 
-    const parsedPacks: ParsedPack[] = [];
-    const manifestPaths: string[] = [];
-    const nestedMcpackPaths: string[] = [];
+	const parsedPacks: ParsedPack[] = [];
+	const manifestPaths: string[] = [];
+	const nestedMcpackPaths: string[] = [];
 
-    // Find all manifest.json files and nested .mcpack files in the archive
-    zip.forEach((relativePath, zipEntry) => {
-        if (!zipEntry.dir) {
-            if (relativePath.toLowerCase().endsWith('manifest.json')) {
-                manifestPaths.push(relativePath);
-            } else if (relativePath.toLowerCase().endsWith('.mcpack')) {
-                nestedMcpackPaths.push(relativePath);
-            }
-        }
-    });
+	// Find all manifest.json files and nested .mcpack files in the archive
+	zip.forEach((relativePath, zipEntry) => {
+		if (!zipEntry.dir) {
+			if (relativePath.toLowerCase().endsWith("manifest.json")) {
+				manifestPaths.push(relativePath);
+			} else if (relativePath.toLowerCase().endsWith(".mcpack")) {
+				nestedMcpackPaths.push(relativePath);
+			}
+		}
+	});
 
-    // Process nested .mcpack files first (for .mcaddon files)
-    for (const mcpackPath of nestedMcpackPaths) {
-        try {
-            const mcpackData = await zip.file(mcpackPath)?.async('arraybuffer');
-            if (mcpackData) {
-                // Get the .mcpack filename for originalFileName
-                const mcpackFileName = mcpackPath.split('/').pop() || mcpackPath;
-                const nestedPacks = await extractFromZip(mcpackData, mcpackFileName);
-                parsedPacks.push(...nestedPacks);
-            }
-        } catch (error) {
-            console.error(`Error extracting nested mcpack at ${mcpackPath}:`, error);
-        }
-    }
+	// Process nested .mcpack files first (for .mcaddon files)
+	for (const mcpackPath of nestedMcpackPaths) {
+		try {
+			const mcpackData = await zip.file(mcpackPath)?.async("arraybuffer");
+			if (mcpackData) {
+				// Get the .mcpack filename for originalFileName
+				const mcpackFileName = mcpackPath.split("/").pop() || mcpackPath;
+				const nestedPacks = await extractFromZip(mcpackData, mcpackFileName);
+				parsedPacks.push(...nestedPacks);
+			}
+		} catch (error) {
+			console.error(`Error extracting nested mcpack at ${mcpackPath}:`, error);
+		}
+	}
 
-    // If we found nested mcpacks, skip direct manifest processing
-    // (the manifests are inside the mcpack files)
-    if (nestedMcpackPaths.length > 0) {
-        return parsedPacks;
-    }
+	// If we found nested mcpacks, skip direct manifest processing
+	// (the manifests are inside the mcpack files)
+	if (nestedMcpackPaths.length > 0) {
+		return parsedPacks;
+	}
 
-    // Process each manifest found (for .mcpack files or flat .mcaddon structure)
-    for (const manifestPath of manifestPaths) {
-        try {
-            const manifestContent = await zip.file(manifestPath)?.async('string');
-            if (!manifestContent) continue;
+	// Process each manifest found (for .mcpack files or flat .mcaddon structure)
+	for (const manifestPath of manifestPaths) {
+		try {
+			const manifestContent = await zip.file(manifestPath)?.async("string");
+			if (!manifestContent) continue;
 
-            // Strip comments before parsing (Bedrock manifests often have comments)
-            const cleanedContent = stripJsonComments(manifestContent);
-            const manifest: PackManifest = JSON.parse(cleanedContent);
-            const packType = determinePackType(manifest);
+			// Strip comments before parsing (Bedrock manifests often have comments)
+			const cleanedContent = stripJsonComments(manifestContent);
+			const manifest: PackManifest = JSON.parse(cleanedContent);
+			const packType = determinePackType(manifest);
 
-            // Get the directory containing the manifest
-            const manifestDir = manifestPath.substring(0, manifestPath.lastIndexOf('/') + 1);
+			// Get the directory containing the manifest
+			const manifestDir = manifestPath.substring(
+				0,
+				manifestPath.lastIndexOf("/") + 1,
+			);
 
-            // Determine folder name
-            const folderName = determineFolderName(manifestPath, manifest);
+			// Determine folder name
+			const folderName = determineFolderName(manifestPath, manifest);
 
-            // Collect all files belonging to this pack
-            const files = new Map<string, Uint8Array>();
-            let iconBlob: Blob | undefined;
+			// Collect all files belonging to this pack
+			const files = new Map<string, Uint8Array>();
+			let iconBlob: Blob | undefined;
 
-            for (const [path, zipEntry] of Object.entries(zip.files)) {
-                if (zipEntry.dir) continue;
+			for (const [path, zipEntry] of Object.entries(zip.files)) {
+				if (zipEntry.dir) continue;
 
-                // Check if this file belongs to this pack's directory
-                if (path.startsWith(manifestDir) || manifestDir === '') {
-                    const relativePath = manifestDir ? path.substring(manifestDir.length) : path;
+				// Check if this file belongs to this pack's directory
+				if (path.startsWith(manifestDir) || manifestDir === "") {
+					const relativePath = manifestDir
+						? path.substring(manifestDir.length)
+						: path;
 
-                    // Skip if this is a different pack's file (for root-level manifests)
-                    if (manifestDir === '' && manifestPaths.length > 1) {
-                        const pathSegments = path.split('/');
-                        if (pathSegments.length > 1 && manifestPaths.some(mp =>
-                            mp !== manifestPath && mp.startsWith(pathSegments[0] + '/')
-                        )) {
-                            continue;
-                        }
-                    }
+					// Skip if this is a different pack's file (for root-level manifests)
+					if (manifestDir === "" && manifestPaths.length > 1) {
+						const pathSegments = path.split("/");
+						if (
+							pathSegments.length > 1 &&
+							manifestPaths.some(
+								(mp) =>
+									mp !== manifestPath && mp.startsWith(`${pathSegments[0]}/`),
+							)
+						) {
+							continue;
+						}
+					}
 
-                    const data = await zipEntry.async('uint8array');
-                    files.set(relativePath, data);
+					const data = await zipEntry.async("uint8array");
+					files.set(relativePath, data);
 
-                    // Check for pack icon
-                    if (relativePath.toLowerCase() === 'pack_icon.png') {
-                        // Create a copy to ensure proper ArrayBuffer type
-                        const iconData = new Uint8Array(data);
-                        iconBlob = new Blob([iconData], { type: 'image/png' });
-                    }
-                }
-            }
+					// Check for pack icon
+					if (relativePath.toLowerCase() === "pack_icon.png") {
+						// Create a copy to ensure proper ArrayBuffer type
+						const iconData = new Uint8Array(data);
+						iconBlob = new Blob([iconData], { type: "image/png" });
+					}
+				}
+			}
 
-            parsedPacks.push({
-                manifest,
-                packType,
-                folderName,
-                originalFileName,
-                files,
-                iconBlob,
-                relativePath: manifestDir
-            });
-        } catch (error) {
-            console.error(`Error parsing manifest at ${manifestPath}:`, error);
-        }
-    }
+			parsedPacks.push({
+				manifest,
+				packType,
+				folderName,
+				originalFileName,
+				files,
+				iconBlob,
+				relativePath: manifestDir,
+			});
+		} catch (error) {
+			console.error(`Error parsing manifest at ${manifestPath}:`, error);
+		}
+	}
 
-    return parsedPacks;
+	return parsedPacks;
 }
 
 /**
  * Determine pack type based on module types in manifest
  */
 function determinePackType(manifest: PackManifest): PackType {
-    for (const module of manifest.modules) {
-        if (module.type === 'data' || module.type === 'script') {
-            return 'behavior';
-        }
-        if (module.type === 'resources' || module.type === 'client_data') {
-            return 'resource';
-        }
-    }
-    // Default to resource if unable to determine
-    return 'resource';
+	for (const module of manifest.modules) {
+		if (module.type === "data" || module.type === "script") {
+			return "behavior";
+		}
+		if (module.type === "resources" || module.type === "client_data") {
+			return "resource";
+		}
+	}
+	// Default to resource if unable to determine
+	return "resource";
 }
 
 /**
  * Determine the folder name for the pack
  * Uses existing folder structure or creates one from pack name
  */
-function determineFolderName(manifestPath: string, manifest: PackManifest): string {
-    const pathSegments = manifestPath.split('/').filter(Boolean);
+function determineFolderName(
+	manifestPath: string,
+	manifest: PackManifest,
+): string {
+	const pathSegments = manifestPath.split("/").filter(Boolean);
 
-    // If manifest is in a subfolder, use that folder name
-    if (pathSegments.length > 1) {
-        return pathSegments[0];
-    }
+	// If manifest is in a subfolder, use that folder name
+	if (pathSegments.length > 1) {
+		return pathSegments[0];
+	}
 
-    // Create folder name from pack name (replace spaces with underscores)
-    return manifest.header.name
-        .replace(/[<>:"/\\|?*]/g, '') // Remove invalid characters
-        .replace(/\s+/g, '_')
-        .trim() || 'unnamed_pack';
+	// Create folder name from pack name (replace spaces with underscores)
+	return (
+		manifest.header.name
+			.replace(/[<>:"/\\|?*]/g, "") // Remove invalid characters
+			.replace(/\s+/g, "_")
+			.trim() || "unnamed_pack"
+	);
 }
 
 /**
  * Validate if a file is a valid addon format
  */
 export function isValidAddonFile(file: File): boolean {
-    const validExtensions = ['.mcpack', '.mcaddon'];
-    const fileName = file.name.toLowerCase();
-    return validExtensions.some(ext => fileName.endsWith(ext));
+	const validExtensions = [".mcpack", ".mcaddon"];
+	const fileName = file.name.toLowerCase();
+	return validExtensions.some((ext) => fileName.endsWith(ext));
 }
