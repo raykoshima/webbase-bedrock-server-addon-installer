@@ -80,6 +80,114 @@ function stripJsonComments(content: string): string {
 }
 
 /**
+ * Check if a ZIP file has the exported structure
+ * (behavior_packs/, resource_packs/, world_behavior_packs.json, world_resource_packs.json)
+ */
+async function isExportedZipStructure(zip: JSZip): Promise<boolean> {
+	const files = Object.keys(zip.files);
+
+	// Check for the presence of exported structure indicators
+	const hasBehaviorPacks = files.some(
+		(path) => path.startsWith("behavior_packs/") && !zip.files[path].dir,
+	);
+	const hasResourcePacks = files.some(
+		(path) => path.startsWith("resource_packs/") && !zip.files[path].dir,
+	);
+	const hasWorldBehaviorJson = files.includes("world_behavior_packs.json");
+	const hasWorldResourceJson = files.includes("world_resource_packs.json");
+
+	// If it has at least behavior_packs or resource_packs folder with the JSON files, it's an exported zip
+	return (
+		(hasBehaviorPacks || hasResourcePacks) &&
+		(hasWorldBehaviorJson || hasWorldResourceJson)
+	);
+}
+
+/**
+ * Extract packs from an exported ZIP file
+ * Exported ZIPs have the structure: behavior_packs/, resource_packs/, world_*.json
+ */
+async function extractFromExportedZip(
+	zip: JSZip,
+	originalFileName: string,
+): Promise<ParsedPack[]> {
+	const parsedPacks: ParsedPack[] = [];
+
+	// Find all pack folders in behavior_packs/ and resource_packs/
+	const packFolders = new Set<string>();
+
+	zip.forEach((relativePath, zipEntry) => {
+		if (!zipEntry.dir) {
+			// Check if file is in behavior_packs/ or resource_packs/
+			const behaviorMatch = relativePath.match(/^behavior_packs\/([^/]+)\//);
+			const resourceMatch = relativePath.match(/^resource_packs\/([^/]+)\//);
+
+			if (behaviorMatch) {
+				packFolders.add(`behavior_packs/${behaviorMatch[1]}`);
+			} else if (resourceMatch) {
+				packFolders.add(`resource_packs/${resourceMatch[1]}`);
+			}
+		}
+	});
+
+	// Extract each pack folder
+	for (const packFolder of packFolders) {
+		try {
+			const manifestPath = `${packFolder}/manifest.json`;
+			const manifestFile = zip.file(manifestPath);
+
+			if (!manifestFile) {
+				console.warn(`No manifest.json found in ${packFolder}`);
+				continue;
+			}
+
+			const manifestContent = await manifestFile.async("string");
+			const cleanedContent = stripJsonComments(manifestContent);
+			const manifest: PackManifest = JSON.parse(cleanedContent);
+			const packType = determinePackType(manifest);
+
+			// Get the folder name (last part of the path)
+			const folderName = packFolder.split("/").pop() || "unnamed_pack";
+
+			// Collect all files in this pack folder
+			const files = new Map<string, Uint8Array>();
+			let iconBlob: Blob | undefined;
+
+			for (const [path, zipEntry] of Object.entries(zip.files)) {
+				if (zipEntry.dir) continue;
+
+				// Check if this file belongs to this pack folder
+				if (path.startsWith(`${packFolder}/`)) {
+					const relativePath = path.substring(packFolder.length + 1);
+					const data = await zipEntry.async("uint8array");
+					files.set(relativePath, data);
+
+					// Check for pack icon
+					if (relativePath.toLowerCase() === "pack_icon.png") {
+						const iconData = new Uint8Array(data);
+						iconBlob = new Blob([iconData], { type: "image/png" });
+					}
+				}
+			}
+
+			parsedPacks.push({
+				manifest,
+				packType,
+				folderName,
+				originalFileName,
+				files,
+				iconBlob,
+				relativePath: `${packFolder}/`,
+			});
+		} catch (error) {
+			console.error(`Error parsing pack at ${packFolder}:`, error);
+		}
+	}
+
+	return parsedPacks;
+}
+
+/**
  * Extract and parse an addon file (.mcpack or .mcaddon)
  * .mcaddon files can contain .mcpack files inside them
  */
@@ -96,6 +204,11 @@ async function extractFromZip(
 	originalFileName: string,
 ): Promise<ParsedPack[]> {
 	const zip = await JSZip.loadAsync(arrayBuffer);
+
+	// Check if this is an exported ZIP structure
+	if (await isExportedZipStructure(zip)) {
+		return extractFromExportedZip(zip, originalFileName);
+	}
 
 	const parsedPacks: ParsedPack[] = [];
 	const manifestPaths: string[] = [];
@@ -253,7 +366,7 @@ function determineFolderName(
  * Validate if a file is a valid addon format
  */
 export function isValidAddonFile(file: File): boolean {
-	const validExtensions = [".mcpack", ".mcaddon"];
+	const validExtensions = [".mcpack", ".mcaddon", ".zip"];
 	const fileName = file.name.toLowerCase();
 	return validExtensions.some((ext) => fileName.endsWith(ext));
 }

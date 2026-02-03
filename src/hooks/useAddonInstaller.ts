@@ -50,7 +50,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 	const importAddonFile = useCallback(async (file: File) => {
 		if (!isValidAddonFile(file)) {
 			setError(
-				"Invalid file format. Please select a .mcpack or .mcaddon file.",
+				"Invalid file format. Please select a .mcpack, .mcaddon, or .zip file.",
 			);
 			return;
 		}
@@ -86,7 +86,7 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 
 		if (validFiles.length === 0) {
 			setError(
-				"No valid addon files selected. Please select .mcpack or .mcaddon files.",
+				"No valid addon files selected. Please select .mcpack, .mcaddon, or .zip files.",
 			);
 			return;
 		}

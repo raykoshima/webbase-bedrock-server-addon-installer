@@ -13,7 +13,7 @@ interface FileDropZoneProps {
 export function FileDropZone({
 	onFilesSelect,
 	disabled,
-	accept = ".mcpack,.mcaddon",
+	accept = ".mcpack,.mcaddon,.zip",
 }: FileDropZoneProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const {
@@ -94,6 +94,7 @@ export function FileDropZone({
 				<div className={styles.formats}>
 					<span className={styles.format}>.mcpack</span>
 					<span className={styles.format}>.mcaddon</span>
+					<span className={styles.format}>.zip</span>
 				</div>
 			</div>
 
