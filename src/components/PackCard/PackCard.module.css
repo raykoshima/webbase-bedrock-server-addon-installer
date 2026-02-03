@@ -205,6 +205,10 @@
     cursor: not-allowed;
 }
 
+.exportIcon {
+    margin-right: 0.35rem;
+}
+
 .removeButton {
     display: flex;
     align-items: center;

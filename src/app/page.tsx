@@ -2,30 +2,22 @@
 
 import { useAddonInstaller } from '@/hooks';
 import {
-  DirectorySelector,
   FileDropZone,
   PendingPacksList,
-  InstalledPacksList,
   ErrorNotification
 } from '@/components';
 import styles from './page.module.css';
 
 export default function Home() {
   const {
-    isSupported,
     isMounted,
-    worldDirectory,
-    directoryName,
     isLoading,
     error,
     pendingPacks,
-    installedPacks,
-    installationResults,
-    selectWorldDirectory,
+    exportResults,
     importAddonFile,
-    installAllPacks,
-    installSinglePack,
-    refreshInstalledPacks,
+    exportAllPacks,
+    exportSinglePackAction,
     clearPendingPacks,
     clearError,
     removePendingPack
@@ -40,7 +32,7 @@ export default function Home() {
             <span className={styles.logoIcon}>⚡</span>
             <div className={styles.logoText}>
               <h1 className={styles.title}>Bedrock Addon Installer</h1>
-              <p className={styles.subtitle}>Browser-powered addon management for Bedrock servers</p>
+              <p className={styles.subtitle}>Upload addons and export as ready-to-install packages</p>
             </div>
           </div>
         </header>
@@ -53,61 +45,47 @@ export default function Home() {
           />
         )}
 
-        {/* Step 1: Directory Selection */}
+        {/* Step 1: Import Addons */}
         <section className={styles.section}>
           <div className={styles.stepHeader}>
             <span className={styles.stepNumber}>1</span>
-            <h2 className={styles.stepTitle}>Select World Folder</h2>
+            <h2 className={styles.stepTitle}>Upload Addon Files</h2>
           </div>
-          <DirectorySelector
-            directoryName={directoryName}
-            onSelect={selectWorldDirectory}
-            isLoading={isLoading}
-            isSupported={isSupported}
+          <FileDropZone
+            onFileSelect={importAddonFile}
+            disabled={isLoading}
           />
         </section>
 
-        {/* Step 2: Import Addons (only show when directory is selected) */}
-        {worldDirectory && (
+        {/* Step 2: Review and Export Packs */}
+        {pendingPacks.length > 0 && (
           <section className={styles.section}>
             <div className={styles.stepHeader}>
               <span className={styles.stepNumber}>2</span>
-              <h2 className={styles.stepTitle}>Import Addon Files</h2>
-            </div>
-            <FileDropZone
-              onFileSelect={importAddonFile}
-              disabled={isLoading}
-            />
-          </section>
-        )}
-
-        {/* Step 3: Review and Install Pending Packs */}
-        {worldDirectory && pendingPacks.length > 0 && (
-          <section className={styles.section}>
-            <div className={styles.stepHeader}>
-              <span className={styles.stepNumber}>3</span>
-              <h2 className={styles.stepTitle}>Review & Install</h2>
+              <h2 className={styles.stepTitle}>Review & Export</h2>
             </div>
             <PendingPacksList
               packs={pendingPacks}
               onRemovePack={removePendingPack}
-              onInstallPack={installSinglePack}
-              onInstallAll={installAllPacks}
+              onExportPack={exportSinglePackAction}
+              onExportAll={exportAllPacks}
               onClearAll={clearPendingPacks}
-              installationResults={installationResults}
-              isInstalling={isLoading}
+              exportResults={exportResults}
+              isExporting={isLoading}
             />
           </section>
         )}
 
-        {/* Installed Addons List */}
-        {worldDirectory && (
+        {/* Success Message */}
+        {exportResults.length > 0 && pendingPacks.length === 0 && (
           <section className={styles.section}>
-            <InstalledPacksList
-              packs={installedPacks}
-              isLoading={isLoading}
-              onRefresh={refreshInstalledPacks}
-            />
+            <div className={styles.successMessage}>
+              <span className={styles.successIcon}>✅</span>
+              <div className={styles.successText}>
+                <h3>Export Complete!</h3>
+                <p>Your addon package has been downloaded. Extract the zip and follow the included instructions to install.</p>
+              </div>
+            </div>
           </section>
         )}
 

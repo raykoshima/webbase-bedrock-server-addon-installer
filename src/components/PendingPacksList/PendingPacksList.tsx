@@ -2,47 +2,52 @@
 
 import { useState } from 'react';
 import { PackCard } from '@/components/PackCard';
-import type { ParsedPack, InstallationResult } from '@/types';
+import type { ParsedPack } from '@/types';
 import styles from './PendingPacksList.module.css';
+
+export interface ExportResult {
+    success: boolean;
+    pack?: ParsedPack;
+    message: string;
+}
 
 interface PendingPacksListProps {
     packs: ParsedPack[];
     onRemovePack: (uuid: string) => void;
-    onInstallPack: (pack: ParsedPack) => Promise<InstallationResult>;
-    onInstallAll: () => void;
+    onExportPack: (pack: ParsedPack) => Promise<ExportResult>;
+    onExportAll: () => void;
     onClearAll: () => void;
-    installationResults: InstallationResult[];
-    isInstalling: boolean;
+    exportResults: ExportResult[];
+    isExporting: boolean;
 }
 
 export function PendingPacksList({
     packs,
     onRemovePack,
-    onInstallPack,
-    onInstallAll,
+    onExportPack,
+    onExportAll,
     onClearAll,
-    installationResults,
-    isInstalling
+    exportResults,
+    isExporting
 }: PendingPacksListProps) {
-    const [installingPackId, setInstallingPackId] = useState<string | null>(null);
+    const [exportingPackId, setExportingPackId] = useState<string | null>(null);
 
-    const handleInstallSingle = async (pack: ParsedPack) => {
-        setInstallingPackId(pack.manifest.header.uuid);
-        await onInstallPack(pack);
-        setInstallingPackId(null);
+    const handleExportSingle = async (pack: ParsedPack) => {
+        setExportingPackId(pack.manifest.header.uuid);
+        await onExportPack(pack);
+        setExportingPackId(null);
     };
 
     const getPackStatus = (uuid: string) => {
-        const result = installationResults.find(r => r.pack.manifest.header.uuid === uuid);
+        const result = exportResults.find(r => r.pack?.manifest.header.uuid === uuid);
         if (!result) return null;
 
         if (result.success) return 'success';
-        if (result.alreadyExists) return 'exists';
         return 'error';
     };
 
     const getPackMessage = (uuid: string) => {
-        const result = installationResults.find(r => r.pack.manifest.header.uuid === uuid);
+        const result = exportResults.find(r => r.pack?.manifest.header.uuid === uuid);
         return result?.message;
     };
 
@@ -54,27 +59,27 @@ export function PendingPacksList({
         <div className={styles.container}>
             <div className={styles.header}>
                 <h2 className={styles.title}>
-                    <span className={styles.titleIcon}>📥</span>
-                    Ready to Install
+                    <span className={styles.titleIcon}>📦</span>
+                    Ready to Export
                     <span className={styles.count}>{packs.length}</span>
                 </h2>
                 <div className={styles.actions}>
                     <button
                         className={styles.clearButton}
                         onClick={onClearAll}
-                        disabled={isInstalling}
+                        disabled={isExporting}
                     >
                         Clear All
                     </button>
                     <button
                         className={styles.installAllButton}
-                        onClick={onInstallAll}
-                        disabled={isInstalling}
+                        onClick={onExportAll}
+                        disabled={isExporting}
                     >
-                        {isInstalling ? (
+                        {isExporting ? (
                             <>
                                 <span className={styles.spinner}></span>
-                                Installing...
+                                Exporting...
                             </>
                         ) : (
                             <>
@@ -83,7 +88,7 @@ export function PendingPacksList({
                                     <polyline points="7 10 12 15 17 10" />
                                     <line x1="12" y1="15" x2="12" y2="3" />
                                 </svg>
-                                Install All
+                                Export All as ZIP
                             </>
                         )}
                     </button>
@@ -97,12 +102,21 @@ export function PendingPacksList({
                         pack={pack}
                         variant="pending"
                         onRemove={() => onRemovePack(pack.manifest.header.uuid)}
-                        onInstall={() => handleInstallSingle(pack)}
-                        isInstalling={installingPackId === pack.manifest.header.uuid || isInstalling}
-                        installStatus={getPackStatus(pack.manifest.header.uuid)}
-                        installMessage={getPackMessage(pack.manifest.header.uuid)}
+                        onExport={() => handleExportSingle(pack)}
+                        isExporting={exportingPackId === pack.manifest.header.uuid || isExporting}
+                        exportStatus={getPackStatus(pack.manifest.header.uuid)}
+                        exportMessage={getPackMessage(pack.manifest.header.uuid)}
                     />
                 ))}
+            </div>
+
+            <div className={styles.exportInfo}>
+                <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <p>The exported ZIP contains pack folders and JSON configuration files. Extract and copy to your world folder to install.</p>
             </div>
         </div>
     );

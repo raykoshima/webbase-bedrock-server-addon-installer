@@ -1,35 +1,28 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-    requestDirectoryAccess,
-    verifyBedrockWorldDirectory,
-    installPack,
-    scanInstalledPacks,
-    isFileSystemAccessSupported
-} from '@/utils/fileSystem';
 import { extractAddonFile, isValidAddonFile } from '@/utils/zipHandler';
-import { storeMetadata } from '@/utils/metadata';
-import type { ParsedPack, InstalledPack, InstallationResult } from '@/types';
+import { createExportZip, downloadBlob, generateExportFileName, exportSinglePack } from '@/utils/exportHandler';
+import type { ParsedPack } from '@/types';
+
+export interface ExportResult {
+    success: boolean;
+    pack?: ParsedPack;
+    message: string;
+}
 
 export interface UseAddonInstallerReturn {
     // State
-    isSupported: boolean;
     isMounted: boolean;
-    worldDirectory: FileSystemDirectoryHandle | null;
-    directoryName: string | null;
     isLoading: boolean;
     error: string | null;
     pendingPacks: ParsedPack[];
-    installedPacks: InstalledPack[];
-    installationResults: InstallationResult[];
+    exportResults: ExportResult[];
 
     // Actions
-    selectWorldDirectory: () => Promise<void>;
     importAddonFile: (file: File) => Promise<void>;
-    installAllPacks: () => Promise<void>;
-    installSinglePack: (pack: ParsedPack) => Promise<InstallationResult>;
-    refreshInstalledPacks: () => Promise<void>;
+    exportAllPacks: () => Promise<void>;
+    exportSinglePackAction: (pack: ParsedPack) => Promise<ExportResult>;
     clearPendingPacks: () => void;
     clearError: () => void;
     removePendingPack: (uuid: string) => void;
@@ -37,48 +30,14 @@ export interface UseAddonInstallerReturn {
 
 export function useAddonInstaller(): UseAddonInstallerReturn {
     const [isMounted, setIsMounted] = useState(false);
-    const [isSupported, setIsSupported] = useState(true); // Default to true to avoid flash
-    const [worldDirectory, setWorldDirectory] = useState<FileSystemDirectoryHandle | null>(null);
-    const [directoryName, setDirectoryName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [pendingPacks, setPendingPacks] = useState<ParsedPack[]>([]);
-    const [installedPacks, setInstalledPacks] = useState<InstalledPack[]>([]);
-    const [installationResults, setInstallationResults] = useState<InstallationResult[]>([]);
+    const [exportResults, setExportResults] = useState<ExportResult[]>([]);
 
-    // Check browser support only on client side to avoid hydration mismatch
+    // Set mounted state on client side
     useEffect(() => {
         setIsMounted(true);
-        setIsSupported(isFileSystemAccessSupported());
-    }, []);
-
-    const selectWorldDirectory = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const handle = await requestDirectoryAccess();
-
-            if (handle) {
-                const verification = await verifyBedrockWorldDirectory(handle);
-
-                if (!verification.valid) {
-                    setError(verification.message);
-                    return;
-                }
-
-                setWorldDirectory(handle);
-                setDirectoryName(handle.name);
-
-                // Scan for installed packs
-                const installed = await scanInstalledPacks(handle);
-                setInstalledPacks(installed);
-            }
-        } catch (err) {
-            setError((err as Error).message);
-        } finally {
-            setIsLoading(false);
-        }
     }, []);
 
     const importAddonFile = useCallback(async (file: File) => {
@@ -111,69 +70,63 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
         }
     }, []);
 
-    const installSinglePack = useCallback(async (pack: ParsedPack): Promise<InstallationResult> => {
-        if (!worldDirectory) {
+    const exportSinglePackAction = useCallback(async (pack: ParsedPack): Promise<ExportResult> => {
+        try {
+            setIsLoading(true);
+            const blob = await exportSinglePack(pack);
+            const fileName = generateExportFileName([pack]);
+            downloadBlob(blob, fileName);
+
+            // Remove from pending after successful export
+            setPendingPacks(prev => prev.filter(p => p.manifest.header.uuid !== pack.manifest.header.uuid));
+
+            return {
+                success: true,
+                pack,
+                message: `Successfully exported "${pack.manifest.header.name}"`
+            };
+        } catch (err) {
             return {
                 success: false,
                 pack,
-                message: 'No world directory selected.'
+                message: `Failed to export: ${(err as Error).message}`
             };
-        }
-
-        const result = await installPack(worldDirectory, pack);
-
-        if (result.success) {
-            // Store metadata
-            storeMetadata(pack);
-
-            // Refresh installed packs
-            const installed = await scanInstalledPacks(worldDirectory);
-            setInstalledPacks(installed);
-
-            // Remove from pending
-            setPendingPacks(prev => prev.filter(p => p.manifest.header.uuid !== pack.manifest.header.uuid));
-        }
-
-        return {
-            ...result,
-            pack
-        };
-    }, [worldDirectory]);
-
-    const installAllPacks = useCallback(async () => {
-        if (!worldDirectory || pendingPacks.length === 0) return;
-
-        setIsLoading(true);
-        setInstallationResults([]);
-
-        const results: InstallationResult[] = [];
-
-        for (const pack of pendingPacks) {
-            const result = await installSinglePack(pack);
-            results.push(result);
-        }
-
-        setInstallationResults(results);
-        setIsLoading(false);
-    }, [worldDirectory, pendingPacks, installSinglePack]);
-
-    const refreshInstalledPacks = useCallback(async () => {
-        if (!worldDirectory) return;
-
-        setIsLoading(true);
-        try {
-            const installed = await scanInstalledPacks(worldDirectory);
-            setInstalledPacks(installed);
-        } catch (err) {
-            setError(`Failed to scan installed packs: ${(err as Error).message}`);
         } finally {
             setIsLoading(false);
         }
-    }, [worldDirectory]);
+    }, []);
+
+    const exportAllPacks = useCallback(async () => {
+        if (pendingPacks.length === 0) return;
+
+        setIsLoading(true);
+        setExportResults([]);
+
+        try {
+            const blob = await createExportZip(pendingPacks);
+            const fileName = generateExportFileName(pendingPacks);
+            downloadBlob(blob, fileName);
+
+            const results: ExportResult[] = pendingPacks.map(pack => ({
+                success: true,
+                pack,
+                message: `Successfully exported "${pack.manifest.header.name}"`
+            }));
+
+            setExportResults(results);
+
+            // Clear pending packs after successful export
+            setPendingPacks([]);
+        } catch (err) {
+            setError(`Failed to export packs: ${(err as Error).message}`);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [pendingPacks]);
 
     const clearPendingPacks = useCallback(() => {
         setPendingPacks([]);
-        setInstallationResults([]);
+        setExportResults([]);
     }, []);
 
     const clearError = useCallback(() => {
@@ -185,20 +138,14 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
     }, []);
 
     return {
-        isSupported,
         isMounted,
-        worldDirectory,
-        directoryName,
         isLoading,
         error,
         pendingPacks,
-        installedPacks,
-        installationResults,
-        selectWorldDirectory,
+        exportResults,
         importAddonFile,
-        installAllPacks,
-        installSinglePack,
-        refreshInstalledPacks,
+        exportAllPacks,
+        exportSinglePackAction,
         clearPendingPacks,
         clearError,
         removePendingPack

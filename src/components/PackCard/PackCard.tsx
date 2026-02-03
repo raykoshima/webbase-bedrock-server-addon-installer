@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { usePackIcon } from '@/hooks';
 import type { ParsedPack, InstalledPack, PackType } from '@/types';
 import styles from './PackCard.module.css';
@@ -9,10 +8,10 @@ interface PackCardProps {
     pack: ParsedPack | InstalledPack;
     variant: 'pending' | 'installed';
     onRemove?: () => void;
-    onInstall?: () => void;
-    isInstalling?: boolean;
-    installStatus?: 'success' | 'error' | 'exists' | null;
-    installMessage?: string;
+    onExport?: () => void;
+    isExporting?: boolean;
+    exportStatus?: 'success' | 'error' | null;
+    exportMessage?: string;
 }
 
 function isParsedPack(pack: ParsedPack | InstalledPack): pack is ParsedPack {
@@ -23,10 +22,10 @@ export function PackCard({
     pack,
     variant,
     onRemove,
-    onInstall,
-    isInstalling,
-    installStatus,
-    installMessage
+    onExport,
+    isExporting,
+    exportStatus,
+    exportMessage
 }: PackCardProps) {
     const iconBlob = isParsedPack(pack) ? pack.iconBlob : pack.iconBlob;
     const { iconUrl } = usePackIcon(iconBlob);
@@ -44,7 +43,7 @@ export function PackCard({
     const versionString = Array.isArray(version) ? version.join('.') : version;
 
     return (
-        <div className={`${styles.card} ${styles[variant]} ${installStatus ? styles[installStatus] : ''}`}>
+        <div className={`${styles.card} ${styles[variant]} ${exportStatus ? styles[exportStatus] : ''}`}>
             <div className={styles.iconContainer}>
                 {iconUrl ? (
                     <img
@@ -72,28 +71,36 @@ export function PackCard({
                 {description && (
                     <p className={styles.description}>{description}</p>
                 )}
-                {installMessage && (
-                    <p className={`${styles.statusMessage} ${styles[installStatus || '']}`}>
-                        {installMessage}
+                {exportMessage && (
+                    <p className={`${styles.statusMessage} ${styles[exportStatus || '']}`}>
+                        {exportMessage}
                     </p>
                 )}
             </div>
 
             <div className={styles.actions}>
-                {variant === 'pending' && onInstall && !installStatus && (
+                {variant === 'pending' && onExport && !exportStatus && (
                     <button
                         className={styles.installButton}
-                        onClick={onInstall}
-                        disabled={isInstalling}
+                        onClick={onExport}
+                        disabled={isExporting}
+                        title="Export this pack as ZIP"
                     >
-                        {isInstalling ? (
+                        {isExporting ? (
                             <span className={styles.spinner}></span>
                         ) : (
-                            'Install'
+                            <>
+                                <svg className={styles.exportIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Export
+                            </>
                         )}
                     </button>
                 )}
-                {variant === 'pending' && onRemove && !installStatus && (
+                {variant === 'pending' && onRemove && !exportStatus && (
                     <button
                         className={styles.removeButton}
                         onClick={onRemove}
@@ -102,14 +109,11 @@ export function PackCard({
                         ×
                     </button>
                 )}
-                {installStatus === 'success' && (
+                {exportStatus === 'success' && (
                     <span className={styles.successIcon}>✓</span>
                 )}
-                {installStatus === 'error' && (
+                {exportStatus === 'error' && (
                     <span className={styles.errorIcon}>✗</span>
-                )}
-                {installStatus === 'exists' && (
-                    <span className={styles.existsIcon}>≡</span>
                 )}
             </div>
         </div>
