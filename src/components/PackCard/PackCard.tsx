@@ -9,8 +9,6 @@ interface PackCardProps {
 	pack: ParsedPack | InstalledPack;
 	variant: "pending" | "installed";
 	onRemove?: () => void;
-	onExport?: () => void;
-	isExporting?: boolean;
 	exportStatus?: "success" | "error" | null;
 	exportMessage?: string;
 }
@@ -23,8 +21,6 @@ export function PackCard({
 	pack,
 	variant,
 	onRemove,
-	onExport,
-	isExporting,
 	exportStatus,
 	exportMessage,
 }: PackCardProps) {
@@ -87,37 +83,6 @@ export function PackCard({
 			</div>
 
 			<div className={styles.actions}>
-				{variant === "pending" && onExport && !exportStatus && (
-					<button
-						type="button"
-						className={styles.installButton}
-						onClick={onExport}
-						disabled={isExporting}
-						title="Export this pack as ZIP"
-					>
-						{isExporting ? (
-							<span className={styles.spinner}></span>
-						) : (
-							<>
-								<svg
-									className={styles.exportIcon}
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-									width="14"
-									height="14"
-									aria-label="Export icon"
-								>
-									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-									<polyline points="7 10 12 15 17 10" />
-									<line x1="12" y1="15" x2="12" y2="3" />
-								</svg>
-								Export
-							</>
-						)}
-					</button>
-				)}
 				{variant === "pending" && onRemove && !exportStatus && (
 					<button
 						type="button"

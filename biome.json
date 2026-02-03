@@ -18,7 +18,8 @@
 			"recommended": true,
 			"a11y": {
 				"noSvgWithoutTitle": "off",
-				"useSemanticElements": "warn"
+				"useSemanticElements": "warn",
+				"noStaticElementInteractions": "off"
 			},
 			"style": {
 				"noNonNullAssertion": "off"

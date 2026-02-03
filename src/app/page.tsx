@@ -20,6 +20,7 @@ export default function Home() {
 		clearPendingPacks,
 		clearError,
 		removePendingPack,
+		reorderPendingPacks,
 	} = useAddonInstaller();
 
 	return (
@@ -63,6 +64,7 @@ export default function Home() {
 							onExportPack={exportSinglePackAction}
 							onExportAll={exportAllPacks}
 							onClearAll={clearPendingPacks}
+							onReorderPacks={reorderPendingPacks}
 							exportResults={exportResults}
 							isExporting={isLoading}
 						/>

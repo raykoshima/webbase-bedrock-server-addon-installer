@@ -17,6 +17,7 @@ interface PendingPacksListProps {
 	onExportPack: (pack: ParsedPack) => Promise<ExportResult>;
 	onExportAll: () => void;
 	onClearAll: () => void;
+	onReorderPacks: (reorderedPacks: ParsedPack[]) => void;
 	exportResults: ExportResult[];
 	isExporting: boolean;
 }
@@ -24,19 +25,20 @@ interface PendingPacksListProps {
 export function PendingPacksList({
 	packs,
 	onRemovePack,
-	onExportPack,
 	onExportAll,
 	onClearAll,
+	onReorderPacks,
 	exportResults,
 	isExporting,
 }: PendingPacksListProps) {
-	const [exportingPackId, setExportingPackId] = useState<string | null>(null);
+	const [draggedPack, setDraggedPack] = useState<ParsedPack | null>(null);
+	const [draggedOverPack, setDraggedOverPack] = useState<ParsedPack | null>(
+		null,
+	);
 
-	const handleExportSingle = async (pack: ParsedPack) => {
-		setExportingPackId(pack.manifest.header.uuid);
-		await onExportPack(pack);
-		setExportingPackId(null);
-	};
+	// Separate packs by type
+	const behaviorPacks = packs.filter((p) => p.packType === "behavior");
+	const resourcePacks = packs.filter((p) => p.packType === "resource");
 
 	const getPackStatus = (uuid: string) => {
 		const result = exportResults.find(
@@ -53,6 +55,171 @@ export function PendingPacksList({
 			(r) => r.pack?.manifest.header.uuid === uuid,
 		);
 		return result?.message;
+	};
+
+	// Drag and drop handlers
+	const handleDragStart = (pack: ParsedPack) => {
+		setDraggedPack(pack);
+	};
+
+	const handleDragEnd = () => {
+		setDraggedPack(null);
+		setDraggedOverPack(null);
+	};
+
+	const handleDragOver = (e: React.DragEvent, pack: ParsedPack) => {
+		e.preventDefault();
+		if (draggedPack && draggedPack.packType === pack.packType) {
+			setDraggedOverPack(pack);
+		}
+	};
+
+	const handleDrop = (e: React.DragEvent, targetPack: ParsedPack) => {
+		e.preventDefault();
+		if (!draggedPack || draggedPack.packType !== targetPack.packType) return;
+
+		const packList =
+			draggedPack.packType === "behavior" ? behaviorPacks : resourcePacks;
+		const draggedIndex = packList.findIndex(
+			(p) => p.manifest.header.uuid === draggedPack.manifest.header.uuid,
+		);
+		const targetIndex = packList.findIndex(
+			(p) => p.manifest.header.uuid === targetPack.manifest.header.uuid,
+		);
+
+		if (draggedIndex === targetIndex) return;
+
+		// Reorder within the same pack type
+		const newPackList = [...packList];
+		const [removed] = newPackList.splice(draggedIndex, 1);
+		newPackList.splice(targetIndex, 0, removed);
+
+		// Combine with the other pack type (Behavior first, then Resource)
+		const otherPacks =
+			draggedPack.packType === "behavior" ? resourcePacks : behaviorPacks;
+		const reorderedPacks =
+			draggedPack.packType === "behavior"
+				? [...newPackList, ...otherPacks]
+				: [...otherPacks, ...newPackList];
+
+		onReorderPacks(reorderedPacks);
+		setDraggedPack(null);
+		setDraggedOverPack(null);
+	};
+
+	// Move pack up/down (for mobile drag handle buttons)
+	const movePack = (pack: ParsedPack, direction: "up" | "down") => {
+		const packList =
+			pack.packType === "behavior" ? behaviorPacks : resourcePacks;
+		const currentIndex = packList.findIndex(
+			(p) => p.manifest.header.uuid === pack.manifest.header.uuid,
+		);
+
+		if (currentIndex === -1) return;
+
+		const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+		if (newIndex < 0 || newIndex >= packList.length) return;
+
+		const newPackList = [...packList];
+		const [removed] = newPackList.splice(currentIndex, 1);
+		newPackList.splice(newIndex, 0, removed);
+
+		// Combine with the other pack type (Behavior first, then Resource)
+		const otherPacks =
+			pack.packType === "behavior" ? resourcePacks : behaviorPacks;
+		const reorderedPacks =
+			pack.packType === "behavior"
+				? [...newPackList, ...otherPacks]
+				: [...otherPacks, ...newPackList];
+
+		onReorderPacks(reorderedPacks);
+	};
+
+	const renderPackSection = (
+		sectionPacks: ParsedPack[],
+		title: string,
+		icon: string,
+	) => {
+		if (sectionPacks.length === 0) return null;
+
+		return (
+			<div className={styles.section}>
+				<h3 className={styles.sectionTitle}>
+					<span className={styles.sectionIcon}>{icon}</span>
+					{title}
+					<span className={styles.sectionCount}>{sectionPacks.length}</span>
+				</h3>
+				<div className={styles.packsList}>
+					{sectionPacks.map((pack, index) => (
+						<div
+							key={pack.manifest.header.uuid}
+							draggable={!isExporting}
+							onDragStart={() => handleDragStart(pack)}
+							onDragEnd={handleDragEnd}
+							onDragOver={(e) => handleDragOver(e, pack)}
+							onDrop={(e) => handleDrop(e, pack)}
+							className={`${styles.packItem} ${
+								draggedPack?.manifest.header.uuid === pack.manifest.header.uuid
+									? styles.dragging
+									: ""
+							} ${
+								draggedOverPack?.manifest.header.uuid ===
+									pack.manifest.header.uuid && draggedPack
+									? styles.dragOver
+									: ""
+							}`}
+						>
+							{/* Mobile drag handle buttons */}
+							<div className={styles.dragHandles}>
+								<button
+									type="button"
+									className={styles.dragHandleButton}
+									onClick={() => movePack(pack, "up")}
+									disabled={index === 0 || isExporting}
+									aria-label="Move up"
+								>
+									<svg
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										aria-label="Up arrow"
+									>
+										<polyline points="18 15 12 9 6 15" />
+									</svg>
+								</button>
+								<button
+									type="button"
+									className={styles.dragHandleButton}
+									onClick={() => movePack(pack, "down")}
+									disabled={index === sectionPacks.length - 1 || isExporting}
+									aria-label="Move down"
+								>
+									<svg
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										aria-label="Down arrow"
+									>
+										<polyline points="6 9 12 15 18 9" />
+									</svg>
+								</button>
+							</div>
+
+							<PackCard
+								pack={pack}
+								variant="pending"
+								onRemove={() => onRemovePack(pack.manifest.header.uuid)}
+								exportStatus={getPackStatus(pack.manifest.header.uuid)}
+								exportMessage={getPackMessage(pack.manifest.header.uuid)}
+							/>
+						</div>
+					))}
+				</div>
+			</div>
+		);
 	};
 
 	if (packs.length === 0) {
@@ -108,21 +275,9 @@ export function PendingPacksList({
 				</div>
 			</div>
 
-			<div className={styles.packsList}>
-				{packs.map((pack) => (
-					<PackCard
-						key={pack.manifest.header.uuid}
-						pack={pack}
-						variant="pending"
-						onRemove={() => onRemovePack(pack.manifest.header.uuid)}
-						onExport={() => handleExportSingle(pack)}
-						isExporting={
-							exportingPackId === pack.manifest.header.uuid || isExporting
-						}
-						exportStatus={getPackStatus(pack.manifest.header.uuid)}
-						exportMessage={getPackMessage(pack.manifest.header.uuid)}
-					/>
-				))}
+			<div className={styles.sections}>
+				{renderPackSection(behaviorPacks, "Behavior Packs", "⚙️")}
+				{renderPackSection(resourcePacks, "Resource Packs", "🎨")}
 			</div>
 
 			<div className={styles.exportInfo}>
@@ -139,8 +294,8 @@ export function PendingPacksList({
 					<line x1="12" y1="8" x2="12.01" y2="8" />
 				</svg>
 				<p>
+					On desktop, drag packs to reorder. On mobile, use the arrow buttons.
 					The exported ZIP contains pack folders and JSON configuration files.
-					Extract and copy to your world folder to install.
 				</p>
 			</div>
 		</div>

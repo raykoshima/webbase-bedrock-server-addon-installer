@@ -32,6 +32,7 @@ export interface UseAddonInstallerReturn {
 	clearPendingPacks: () => void;
 	clearError: () => void;
 	removePendingPack: (uuid: string) => void;
+	reorderPendingPacks: (reorderedPacks: ParsedPack[]) => void;
 }
 
 export function useAddonInstaller(): UseAddonInstallerReturn {
@@ -245,6 +246,10 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 		);
 	}, []);
 
+	const reorderPendingPacks = useCallback((reorderedPacks: ParsedPack[]) => {
+		setPendingPacks(reorderedPacks);
+	}, []);
+
 	return {
 		isMounted,
 		isLoading,
@@ -258,5 +263,6 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 		clearPendingPacks,
 		clearError,
 		removePendingPack,
+		reorderPendingPacks,
 	};
 }
