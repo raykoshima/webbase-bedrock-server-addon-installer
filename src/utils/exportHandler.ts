@@ -150,6 +150,9 @@ export function generateExportFileName(packs: ParsedPack[]): string {
 		return `${name}_v${version}_export.zip`;
 	}
 
-	const timestamp = new Date().toISOString().slice(0, 10);
+	const now = new Date();
+	const date = now.toISOString().slice(0, 10); // 2026-02-03
+	const time = now.toISOString().slice(11, 19).replace(/:/g, "-"); // 14-30-45
+	const timestamp = `${date}_${time}`;
 	return `bedrock_addons_export_${timestamp}.zip`;
 }
