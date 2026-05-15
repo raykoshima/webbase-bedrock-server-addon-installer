@@ -111,8 +111,8 @@ ${resourcePacks.map((p) => `  - ${p.manifest.header.name} v${formatVersion(p.man
 4. รีสตาร์ทเซิร์ฟเวอร์หรือโหลดเวิลด์ใหม่
 
 หมายเหตุ: โฟลเดอร์เวิลด์โดยทั่วไปจะอยู่ที่:
-  - Windows: %localappdata%\\Packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\LocalState\\games\\com.mojang\\minecraftWorlds\\[world_name]
-  - Bedrock Dedicated Server: ./worlds/[world_name]
+  - Windows: %appdata%\\Minecraft Bedrock\\Users\\เลขมั่วๆ\\games\\com.mojang\\minecraftWorlds\\[ชื่อโลก]
+  - Bedrock Dedicated Server: ./worlds/[ชื่อโลก]
 
 สร้างโดย Bedrock Addon Installer
 `;
