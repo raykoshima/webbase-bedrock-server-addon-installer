@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import type { ParsedPack } from "@/types";
+import type { ParsedPack, WorldPackEntry } from "@/types";
 
 /**
  * Safely format version to string (handles both array and string formats)
@@ -37,10 +37,16 @@ export async function createExportZip(packs: ParsedPack[]): Promise<Blob> {
 		}
 
 		// Create world_behavior_packs.json
-		const behaviorEntries = behaviorPacks.map((pack) => ({
-			pack_id: pack.manifest.header.uuid,
-			version: pack.manifest.header.version,
-		}));
+		const behaviorEntries = behaviorPacks.map((pack) => {
+			const entry: WorldPackEntry = {
+				pack_id: pack.manifest.header.uuid,
+				version: pack.manifest.header.version,
+			};
+			if (pack.selectedSubpack) {
+				entry.subpack = pack.selectedSubpack;
+			}
+			return entry;
+		});
 		zip.file(
 			"world_behavior_packs.json",
 			JSON.stringify(behaviorEntries, null, 2),
@@ -60,10 +66,16 @@ export async function createExportZip(packs: ParsedPack[]): Promise<Blob> {
 		}
 
 		// Create world_resource_packs.json
-		const resourceEntries = resourcePacks.map((pack) => ({
-			pack_id: pack.manifest.header.uuid,
-			version: pack.manifest.header.version,
-		}));
+		const resourceEntries = resourcePacks.map((pack) => {
+			const entry: WorldPackEntry = {
+				pack_id: pack.manifest.header.uuid,
+				version: pack.manifest.header.version,
+			};
+			if (pack.selectedSubpack) {
+				entry.subpack = pack.selectedSubpack;
+			}
+			return entry;
+		});
 		zip.file(
 			"world_resource_packs.json",
 			JSON.stringify(resourceEntries, null, 2),

@@ -11,10 +11,15 @@ interface PackCardProps {
 	onRemove?: () => void;
 	exportStatus?: "success" | "error" | null;
 	exportMessage?: string;
+	onSubpackChange?: (subpackFolderName: string) => void;
 }
 
 function isParsedPack(pack: ParsedPack | InstalledPack): pack is ParsedPack {
 	return "manifest" in pack;
+}
+
+function stripMinecraftFormatting(text: string): string {
+	return text.replace(/§[0-9a-fk-or]/gi, "");
 }
 
 export function PackCard({
@@ -23,6 +28,7 @@ export function PackCard({
 	onRemove,
 	exportStatus,
 	exportMessage,
+	onSubpackChange,
 }: PackCardProps) {
 	const iconBlob = isParsedPack(pack) ? pack.iconBlob : pack.iconBlob;
 	const { iconUrl } = usePackIcon(iconBlob);
@@ -40,6 +46,10 @@ export function PackCard({
 		: pack.description;
 
 	const versionString = Array.isArray(version) ? version.join(".") : version;
+	const subpacks =
+		isParsedPack(pack) ? pack.manifest.subpacks : undefined;
+	const selectedSubpack =
+		isParsedPack(pack) ? pack.selectedSubpack : undefined;
 
 	return (
 		<div
@@ -73,6 +83,22 @@ export function PackCard({
 					<span className={styles.version}>v{versionString}</span>
 				</div>
 				{description && <p className={styles.description}>{description}</p>}
+				{subpacks && subpacks.length > 0 && variant === "pending" && (
+					<div className={styles.subpackSelector}>
+						<label className={styles.subpackLabel}>Subpack:</label>
+						<select
+							className={styles.subpackSelect}
+							value={selectedSubpack ?? ""}
+							onChange={(e) => onSubpackChange?.(e.target.value)}
+						>
+							{subpacks.map((sp) => (
+								<option key={sp.folder_name} value={sp.folder_name}>
+									{stripMinecraftFormatting(sp.name)}
+								</option>
+							))}
+						</select>
+					</div>
+				)}
 				{exportMessage && (
 					<p
 						className={`${styles.statusMessage} ${styles[exportStatus || ""]}`}

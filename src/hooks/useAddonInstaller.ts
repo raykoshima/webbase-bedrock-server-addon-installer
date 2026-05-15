@@ -33,6 +33,7 @@ export interface UseAddonInstallerReturn {
 	clearError: () => void;
 	removePendingPack: (uuid: string) => void;
 	reorderPendingPacks: (reorderedPacks: ParsedPack[]) => void;
+	setSelectedSubpack: (uuid: string, subpackFolderName: string) => void;
 }
 
 export function useAddonInstaller(): UseAddonInstallerReturn {
@@ -204,6 +205,19 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 		setPendingPacks(reorderedPacks);
 	}, []);
 
+	const setSelectedSubpack = useCallback(
+		(uuid: string, subpackFolderName: string) => {
+			setPendingPacks((prev) =>
+				prev.map((pack) =>
+					pack.manifest.header.uuid === uuid
+						? { ...pack, selectedSubpack: subpackFolderName }
+						: pack,
+				),
+			);
+		},
+		[],
+	);
+
 	return {
 		isMounted,
 		isLoading,
@@ -218,5 +232,6 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 		clearError,
 		removePendingPack,
 		reorderPendingPacks,
+		setSelectedSubpack,
 	};
 }

@@ -170,6 +170,12 @@ async function extractFromExportedZip(
 				}
 			}
 
+			const subpacks = manifest.subpacks;
+			const selectedSubpack =
+				subpacks && subpacks.length > 0
+					? subpacks[subpacks.length - 1].folder_name
+					: undefined;
+
 			parsedPacks.push({
 				manifest,
 				packType,
@@ -178,6 +184,7 @@ async function extractFromExportedZip(
 				files,
 				iconBlob,
 				relativePath: `${packFolder}/`,
+				selectedSubpack,
 			});
 		} catch (error) {
 			console.error(`Error parsing pack at ${packFolder}:`, error);
@@ -305,6 +312,12 @@ async function extractFromZip(
 				}
 			}
 
+			const subpacks = manifest.subpacks;
+			const selectedSubpack =
+				subpacks && subpacks.length > 0
+					? subpacks[subpacks.length - 1].folder_name
+					: undefined;
+
 			parsedPacks.push({
 				manifest,
 				packType,
@@ -313,6 +326,7 @@ async function extractFromZip(
 				files,
 				iconBlob,
 				relativePath: manifestDir,
+				selectedSubpack,
 			});
 		} catch (error) {
 			console.error(`Error parsing manifest at ${manifestPath}:`, error);

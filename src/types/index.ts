@@ -21,11 +21,18 @@ export interface ManifestDependency {
 	version: [number, number, number] | string;
 }
 
+export interface ManifestSubpack {
+	folder_name: string;
+	name: string;
+	memory_tier: number;
+}
+
 export interface PackManifest {
 	format_version: number;
 	header: ManifestHeader;
 	modules: ManifestModule[];
 	dependencies?: ManifestDependency[];
+	subpacks?: ManifestSubpack[];
 }
 
 export type PackType = "behavior" | "resource";
@@ -38,6 +45,7 @@ export interface ParsedPack {
 	files: Map<string, Uint8Array>;
 	iconBlob?: Blob;
 	relativePath: string; // Path within the archive where manifest was found
+	selectedSubpack?: string;
 }
 
 export interface InstalledPack {
@@ -53,6 +61,7 @@ export interface InstalledPack {
 export interface WorldPackEntry {
 	pack_id: string;
 	version: [number, number, number];
+	subpack?: string;
 }
 
 export interface AddonMetadata {

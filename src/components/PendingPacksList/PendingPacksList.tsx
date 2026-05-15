@@ -18,6 +18,7 @@ interface PendingPacksListProps {
 	onExportAll: () => void;
 	onClearAll: () => void;
 	onReorderPacks: (reorderedPacks: ParsedPack[]) => void;
+	onSubpackChange: (uuid: string, subpackFolderName: string) => void;
 	exportResults: ExportResult[];
 	isExporting: boolean;
 }
@@ -28,6 +29,7 @@ export function PendingPacksList({
 	onExportAll,
 	onClearAll,
 	onReorderPacks,
+	onSubpackChange,
 	exportResults,
 	isExporting,
 }: PendingPacksListProps) {
@@ -214,6 +216,9 @@ export function PendingPacksList({
 								onRemove={() => onRemovePack(pack.manifest.header.uuid)}
 								exportStatus={getPackStatus(pack.manifest.header.uuid)}
 								exportMessage={getPackMessage(pack.manifest.header.uuid)}
+								onSubpackChange={(subpackFolderName) =>
+									onSubpackChange(pack.manifest.header.uuid, subpackFolderName)
+								}
 							/>
 						</div>
 					))}

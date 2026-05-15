@@ -183,6 +183,55 @@
 	overflow: hidden;
 }
 
+.subpackSelector {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.subpackLabel {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: rgba(148, 163, 184, 0.8);
+	white-space: nowrap;
+}
+
+.subpackSelect {
+	flex: 1;
+	min-width: 0;
+	padding: 0.35rem 0.6rem;
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(99, 102, 241, 0.3);
+	border-radius: 6px;
+	color: #e2e8f0;
+	font-size: 0.78rem;
+	font-family: inherit;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.5rem center;
+	padding-right: 1.5rem;
+}
+
+.subpackSelect:hover {
+	border-color: rgba(99, 102, 241, 0.5);
+	background-color: rgba(255, 255, 255, 0.08);
+}
+
+.subpackSelect:focus {
+	outline: none;
+	border-color: rgba(99, 102, 241, 0.6);
+	box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.subpackSelect option {
+	background: #1e1e2e;
+	color: #e2e8f0;
+}
+
 .statusMessage {
 	margin: 0.5rem 0 0;
 	font-size: 0.75rem;
