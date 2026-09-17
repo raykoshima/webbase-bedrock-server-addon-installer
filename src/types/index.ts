@@ -42,6 +42,7 @@ export interface ParsedPack {
 	packType: PackType;
 	folderName: string;
 	originalFileName: string;
+	displayName?: string; // Preferred UI name (e.g. pack folder name from an exported archive)
 	files: Map<string, Uint8Array>;
 	iconBlob?: Blob;
 	relativePath: string; // Path within the archive where manifest was found

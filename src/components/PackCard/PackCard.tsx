@@ -33,9 +33,10 @@ export function PackCard({
 	const iconBlob = isParsedPack(pack) ? pack.iconBlob : pack.iconBlob;
 	const { iconUrl } = usePackIcon(iconBlob);
 
-	// For pending packs, show filename without extension; for installed, show manifest name
+	// For pending packs, prefer the pack folder name, else filename without extension; for installed, show manifest name
 	const name = isParsedPack(pack)
-		? pack.originalFileName.replace(/\.(mcpack|mcaddon)$/i, "")
+		? (pack.displayName ??
+			pack.originalFileName.replace(/\.(mcpack|mcaddon|zip|tar\.gz|tgz)$/i, ""))
 		: pack.name;
 	const version = isParsedPack(pack)
 		? pack.manifest.header.version

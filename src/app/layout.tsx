@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 		"Server",
 		"mcpack",
 		"mcaddon",
+		"tar.gz",
 		"Dedicated Server",
 	],
 	authors: [{ name: "Bedrock Addon Installer" }],

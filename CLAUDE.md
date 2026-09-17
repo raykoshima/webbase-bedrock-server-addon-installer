@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Browser-based Minecraft Bedrock addon management tool. Fully client-side — no backend, no database, no authentication. Thai-language UI. Users drag-drop `.mcpack`/`.mcaddon`/`.zip` files, review/reorder packs, then export a Bedrock-server-compatible ZIP with registration JSONs.
+Browser-based Minecraft Bedrock addon management tool. Fully client-side — no backend, no database, no authentication. Thai-language UI. Users drag-drop `.mcpack`/`.mcaddon`/`.zip`/`.tar.gz` files, review/reorder packs, then export a Bedrock-server-compatible ZIP with registration JSONs.
 
 ## Commands
 
@@ -48,6 +48,7 @@ FileDropZone (drag-drop/click upload)
 |--------|------|
 | `src/hooks/useAddonInstaller.ts` | Central state + all user actions (import, export, reorder, remove) |
 | `src/utils/zipHandler.ts` | ZIP extraction, manifest parsing, JSON comment stripping, pack type classification |
+| `src/utils/tarHandler.ts` | `.tar.gz`/`.tgz` support: native `DecompressionStream` gunzip + ustar/GNU/PAX tar parser, loaded into an in-memory JSZip so zipHandler can reuse the same pipeline |
 | `src/utils/exportHandler.ts` | Creates export ZIP with correct Bedrock directory structure and registration files |
 | `src/utils/fileSystem.ts` | File System Access API integration for direct-to-disk installation (Chromium only, not yet wired into main UI) |
 | `src/utils/metadata.ts` | localStorage persistence for installed pack metadata |
@@ -64,6 +65,7 @@ FileDropZone (drag-drop/click upload)
 - Pack type (behavior vs resource) is determined by manifest module types (`data`/`script` = behavior, `resources` = resource).
 - Export ZIP must match Bedrock server structure: `behavior_packs/`, `resource_packs/`, `world_behavior_packs.json`, `world_resource_packs.json`.
 - Packs are deduplicated by UUID from the manifest header.
+- Archives that already use the exported layout (`behavior_packs/<folder>/`, `resource_packs/<folder>/`) set `displayName` to the pack folder name so the UI shows the folder rather than the archive filename.
 
 ## Browser requirements
 

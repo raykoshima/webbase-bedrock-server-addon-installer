@@ -93,6 +93,7 @@ export function FileDropZone({
 					<span className={styles.format}>.mcpack</span>
 					<span className={styles.format}>.mcaddon</span>
 					<span className={styles.format}>.zip</span>
+					<span className={styles.format}>.tar.gz</span>
 				</div>
 			</div>
 

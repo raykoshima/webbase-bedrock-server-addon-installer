@@ -50,7 +50,9 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 
 	const importAddonFile = useCallback(async (file: File) => {
 		if (!isValidAddonFile(file)) {
-			setError("รูปแบบไฟล์ไม่ถูกต้อง กรุณาเลือกไฟล์ .mcpack, .mcaddon หรือ .zip");
+			setError(
+				"รูปแบบไฟล์ไม่ถูกต้อง กรุณาเลือกไฟล์ .mcpack, .mcaddon, .zip หรือ .tar.gz",
+			);
 			return;
 		}
 
@@ -84,7 +86,9 @@ export function useAddonInstaller(): UseAddonInstallerReturn {
 		const validFiles = files.filter(isValidAddonFile);
 
 		if (validFiles.length === 0) {
-			setError("ไม่มีไฟล์ addon ที่ถูกต้อง กรุณาเลือกไฟล์ .mcpack, .mcaddon หรือ .zip");
+			setError(
+				"ไม่มีไฟล์ addon ที่ถูกต้อง กรุณาเลือกไฟล์ .mcpack, .mcaddon, .zip หรือ .tar.gz",
+			);
 			return;
 		}
 

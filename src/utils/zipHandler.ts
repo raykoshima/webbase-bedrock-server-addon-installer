@@ -1,5 +1,10 @@
 import JSZip from "jszip";
 import type { PackManifest, PackType, ParsedPack } from "@/types";
+import { loadTarGzAsZip } from "./tarHandler";
+
+const ZIP_EXTENSIONS = [".mcpack", ".mcaddon", ".zip"] as const;
+const TAR_EXTENSIONS = [".tar.gz", ".tgz"] as const;
+export const SUPPORTED_EXTENSIONS = [...ZIP_EXTENSIONS, ...TAR_EXTENSIONS];
 
 /**
  * Strip JavaScript-style comments from JSON content
@@ -181,6 +186,7 @@ async function extractFromExportedZip(
 				packType,
 				folderName,
 				originalFileName,
+				displayName: folderName,
 				files,
 				iconBlob,
 				relativePath: `${packFolder}/`,
@@ -194,12 +200,21 @@ async function extractFromExportedZip(
 	return parsedPacks;
 }
 
+function isTarArchive(fileName: string): boolean {
+	const lower = fileName.toLowerCase();
+	return TAR_EXTENSIONS.some((ext) => lower.endsWith(ext));
+}
+
 /**
- * Extract and parse an addon file (.mcpack or .mcaddon)
+ * Extract and parse an addon file (.mcpack, .mcaddon, .zip, .tar.gz, .tgz)
  * .mcaddon files can contain .mcpack files inside them
  */
 export async function extractAddonFile(file: File): Promise<ParsedPack[]> {
 	const arrayBuffer = await file.arrayBuffer();
+	if (isTarArchive(file.name)) {
+		const zip = await loadTarGzAsZip(arrayBuffer);
+		return extractFromArchive(zip, file.name);
+	}
 	return extractFromZip(arrayBuffer, file.name);
 }
 
@@ -211,7 +226,16 @@ async function extractFromZip(
 	originalFileName: string,
 ): Promise<ParsedPack[]> {
 	const zip = await JSZip.loadAsync(arrayBuffer);
+	return extractFromArchive(zip, originalFileName);
+}
 
+/**
+ * Extract packs from an already-loaded archive (from .zip or .tar.gz)
+ */
+async function extractFromArchive(
+	zip: JSZip,
+	originalFileName: string,
+): Promise<ParsedPack[]> {
 	// Check if this is an exported ZIP structure
 	if (await isExportedZipStructure(zip)) {
 		return extractFromExportedZip(zip, originalFileName);
@@ -380,7 +404,6 @@ function determineFolderName(
  * Validate if a file is a valid addon format
  */
 export function isValidAddonFile(file: File): boolean {
-	const validExtensions = [".mcpack", ".mcaddon", ".zip"];
 	const fileName = file.name.toLowerCase();
-	return validExtensions.some((ext) => fileName.endsWith(ext));
+	return SUPPORTED_EXTENSIONS.some((ext) => fileName.endsWith(ext));
 }
