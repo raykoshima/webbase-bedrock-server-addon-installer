@@ -14,6 +14,35 @@ function formatVersion(
 }
 
 /**
+ * Assign each pack a unique folder name within its pack directory.
+ *
+ * Pack authors reuse generic folder names ("BP", "RP") and two different addons
+ * can carry the same internal folder, so writing packs straight to
+ * `pack.folderName` lets one silently overwrite another. Colliding names get a
+ * numeric suffix; the first pack keeps the original name.
+ */
+function assignUniqueFolderNames(
+	packs: ParsedPack[],
+): Map<ParsedPack, string> {
+	const assigned = new Map<ParsedPack, string>();
+	const used = new Set<string>();
+
+	for (const pack of packs) {
+		const base = pack.folderName || "unnamed_pack";
+		let candidate = base;
+		let suffix = 2;
+		while (used.has(candidate.toLowerCase())) {
+			candidate = `${base}_${suffix}`;
+			suffix++;
+		}
+		used.add(candidate.toLowerCase());
+		assigned.set(pack, candidate);
+	}
+
+	return assigned;
+}
+
+/**
  * Create an export zip file containing all packs ready for installation
  * The zip structure follows the Bedrock server pack format
  */
@@ -24,11 +53,18 @@ export async function createExportZip(packs: ParsedPack[]): Promise<Blob> {
 	const behaviorPacks = packs.filter((p) => p.packType === "behavior");
 	const resourcePacks = packs.filter((p) => p.packType === "resource");
 
+	// Folder names are unique per pack directory, so behavior and resource packs
+	// are numbered independently
+	const behaviorFolderNames = assignUniqueFolderNames(behaviorPacks);
+	const resourceFolderNames = assignUniqueFolderNames(resourcePacks);
+
 	// Add behavior packs
 	if (behaviorPacks.length > 0) {
 		const behaviorFolder = zip.folder("behavior_packs");
 		for (const pack of behaviorPacks) {
-			const packFolder = behaviorFolder?.folder(pack.folderName);
+			const packFolder = behaviorFolder?.folder(
+				behaviorFolderNames.get(pack) ?? pack.folderName,
+			);
 			if (packFolder) {
 				for (const [relativePath, data] of pack.files) {
 					packFolder.file(relativePath, data);
@@ -57,7 +93,9 @@ export async function createExportZip(packs: ParsedPack[]): Promise<Blob> {
 	if (resourcePacks.length > 0) {
 		const resourceFolder = zip.folder("resource_packs");
 		for (const pack of resourcePacks) {
-			const packFolder = resourceFolder?.folder(pack.folderName);
+			const packFolder = resourceFolder?.folder(
+				resourceFolderNames.get(pack) ?? pack.folderName,
+			);
 			if (packFolder) {
 				for (const [relativePath, data] of pack.files) {
 					packFolder.file(relativePath, data);

@@ -5,6 +5,7 @@ import type {
 	ParsedPack,
 	WorldPackEntry,
 } from "@/types";
+import { stripJsonComments } from "./jsonComments";
 
 /**
  * Safely format version to string (handles both array and string formats)
@@ -18,79 +19,6 @@ function formatVersion(
 	return String(version);
 }
 
-/**
- * Strip JavaScript-style comments from JSON content
- * Minecraft Bedrock manifests often contain comments which are not valid JSON
- */
-function stripJsonComments(content: string): string {
-	let result = "";
-	let inString = false;
-	let inSingleLineComment = false;
-	let inMultiLineComment = false;
-	let i = 0;
-
-	while (i < content.length) {
-		const char = content[i];
-		const nextChar = content[i + 1];
-
-		if (inSingleLineComment) {
-			if (char === "\n") {
-				inSingleLineComment = false;
-				result += char;
-			}
-			i++;
-			continue;
-		}
-
-		if (inMultiLineComment) {
-			if (char === "*" && nextChar === "/") {
-				inMultiLineComment = false;
-				i += 2;
-				continue;
-			}
-			i++;
-			continue;
-		}
-
-		if (inString) {
-			result += char;
-			if (char === "\\" && i + 1 < content.length) {
-				result += nextChar;
-				i += 2;
-				continue;
-			}
-			if (char === '"') {
-				inString = false;
-			}
-			i++;
-			continue;
-		}
-
-		if (char === '"') {
-			inString = true;
-			result += char;
-			i++;
-			continue;
-		}
-
-		if (char === "/" && nextChar === "/") {
-			inSingleLineComment = true;
-			i += 2;
-			continue;
-		}
-
-		if (char === "/" && nextChar === "*") {
-			inMultiLineComment = true;
-			i += 2;
-			continue;
-		}
-
-		result += char;
-		i++;
-	}
-
-	return result;
-}
 
 /**
  * Request directory access from the user

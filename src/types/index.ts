@@ -1,17 +1,35 @@
 // Core types for the Bedrock Addon Installer
 
+/**
+ * Manifest versions are `[major, minor, patch]` in format_version 1/2 and a
+ * "1.2.3" string in format_version 3. Parsing normalizes both to a triple so
+ * the export registration JSONs always carry the array Bedrock requires.
+ */
+export type PackVersion = [number, number, number];
+
 export interface ManifestHeader {
 	uuid: string;
-	version: [number, number, number];
+	version: PackVersion;
 	name: string;
 	description?: string;
-	min_engine_version?: [number, number, number];
+	min_engine_version?: PackVersion;
 }
 
+/** Known module types; packs in the wild also carry others, so the field stays open */
+export type KnownModuleType =
+	| "data"
+	| "resources"
+	| "client_data"
+	| "script"
+	| "javascript"
+	| "interface"
+	| "world_template"
+	| "skin_pack";
+
 export interface ManifestModule {
-	type: "data" | "resources" | "client_data" | "script" | "world_template";
-	uuid: string;
-	version: [number, number, number];
+	type: KnownModuleType | (string & {});
+	uuid?: string;
+	version?: PackVersion;
 	description?: string;
 }
 
@@ -24,7 +42,10 @@ export interface ManifestDependency {
 export interface ManifestSubpack {
 	folder_name: string;
 	name: string;
-	memory_tier: number;
+	/** format_version 1/2 spelling */
+	memory_tier?: number;
+	/** format_version 3 spelling */
+	memory_performance_tier?: number;
 }
 
 export interface PackManifest {

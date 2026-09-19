@@ -36,7 +36,10 @@ export function PackCard({
 	// For pending packs, prefer the pack folder name, else filename without extension; for installed, show manifest name
 	const name = isParsedPack(pack)
 		? (pack.displayName ??
-			pack.originalFileName.replace(/\.(mcpack|mcaddon|zip|tar\.gz|tgz)$/i, ""))
+			pack.originalFileName.replace(
+				/\.(mcpack|mcaddon|zip|tgz|tar|tar\.gz)$/i,
+				"",
+			))
 		: pack.name;
 	const version = isParsedPack(pack)
 		? pack.manifest.header.version

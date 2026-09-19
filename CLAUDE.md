@@ -47,7 +47,10 @@ FileDropZone (drag-drop/click upload)
 | Module | Role |
 |--------|------|
 | `src/hooks/useAddonInstaller.ts` | Central state + all user actions (import, export, reorder, remove) |
-| `src/utils/zipHandler.ts` | ZIP extraction, manifest parsing, JSON comment stripping, pack type classification |
+| `src/utils/zipHandler.ts` | Recursive archive extraction, manifest reading, pack type classification, folder/display naming |
+| `src/utils/archiveDetect.ts` | Which extensions are containers, plus magic-byte sniffing (PK / gzip / ustar) so a mis-named entry is classified by content |
+| `src/utils/jsonComments.ts` | Lenient manifest JSON parsing: comments, BOM, unescaped control chars, trailing commas, stray non-key strings |
+| `src/utils/manifestNormalize.ts` | Normalizes manifests: string versions (`"1.0.88"`) → `[1,0,88]`, unified subpack memory-tier spellings |
 | `src/utils/tarHandler.ts` | `.tar.gz`/`.tgz` support: native `DecompressionStream` gunzip + ustar/GNU/PAX tar parser, loaded into an in-memory JSZip so zipHandler can reuse the same pipeline |
 | `src/utils/exportHandler.ts` | Creates export ZIP with correct Bedrock directory structure and registration files |
 | `src/utils/fileSystem.ts` | File System Access API integration for direct-to-disk installation (Chromium only, not yet wired into main UI) |
@@ -60,11 +63,16 @@ FileDropZone (drag-drop/click upload)
 
 ## Minecraft-specific considerations
 
-- Manifest JSON files contain comments — `stripJsonComments()` in zipHandler.ts handles this before parsing.
-- Archives can be nested (`.mcaddon` containing `.mcpack` files) — extraction is recursive.
+- Manifest JSON files contain comments — `stripJsonComments()` in jsonComments.ts handles this before parsing.
+- Archives nest arbitrarily and in any combination: a `.zip` of `.mcaddon`/`.mcpack`/`.zip` files, mixed with loose pack folders. Extraction recurses through all of them (depth-capped at 8) and collects packs from every shape, so a mixed archive never silently drops packs.
+- Nested entries are identified by magic bytes, not just extension — real archives are named `Spells.mcaddon.zip`, and a pack asset named `textures/foo.zip` must stay a pack file rather than being treated as an archive.
+- World archives (`.mcworld`/`.mctemplate`) are skipped: their packs belong to that world. They are detected by structure (`level.dat`/`levelname.txt`), since they are often renamed to `.zip`.
+- Real-world manifests are frequently malformed — unescaped newlines in descriptions, trailing commas, a promo line pasted in as a bare string. `parseLenientJson()` repairs these progressively; well-formed manifests take the fast path untouched.
+- `format_version: 3` manifests write versions as `"1.0.88"` strings, but `world_*_packs.json` requires `[1,0,88]`. Versions are normalized at parse time.
 - Pack type (behavior vs resource) is determined by manifest module types (`data`/`script` = behavior, `resources` = resource).
 - Export ZIP must match Bedrock server structure: `behavior_packs/`, `resource_packs/`, `world_behavior_packs.json`, `world_resource_packs.json`.
 - Packs are deduplicated by UUID from the manifest header.
+- Pack folder names collide in practice (generic `BP`/`RP`, or two addons reusing a name), so the export assigns unique folder names per pack directory to stop packs overwriting each other.
 - Archives that already use the exported layout (`behavior_packs/<folder>/`, `resource_packs/<folder>/`) set `displayName` to the pack folder name so the UI shows the folder rather than the archive filename.
 
 ## Browser requirements
