@@ -48,10 +48,7 @@ function describeTrail(context: ExtractContext): string {
 }
 
 function stripArchiveExtension(fileName: string): string {
-	return fileName.replace(
-		/\.(mcpack|mcaddon|zip|tgz|tar|tar\.gz)$/i,
-		"",
-	);
+	return fileName.replace(/\.(mcpack|mcaddon|zip|tgz|tar|tar\.gz)$/i, "");
 }
 
 function baseName(path: string): string {

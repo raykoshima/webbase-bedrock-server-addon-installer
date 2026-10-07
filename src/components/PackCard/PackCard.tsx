@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useId } from "react";
 import { usePackIcon } from "@/hooks";
 import type { InstalledPack, PackType, ParsedPack } from "@/types";
 import styles from "./PackCard.module.css";
@@ -30,6 +31,7 @@ export function PackCard({
 	exportMessage,
 	onSubpackChange,
 }: PackCardProps) {
+	const subpackSelectId = useId();
 	const iconBlob = isParsedPack(pack) ? pack.iconBlob : pack.iconBlob;
 	const { iconUrl } = usePackIcon(iconBlob);
 
@@ -50,10 +52,8 @@ export function PackCard({
 		: pack.description;
 
 	const versionString = Array.isArray(version) ? version.join(".") : version;
-	const subpacks =
-		isParsedPack(pack) ? pack.manifest.subpacks : undefined;
-	const selectedSubpack =
-		isParsedPack(pack) ? pack.selectedSubpack : undefined;
+	const subpacks = isParsedPack(pack) ? pack.manifest.subpacks : undefined;
+	const selectedSubpack = isParsedPack(pack) ? pack.selectedSubpack : undefined;
 
 	return (
 		<div
@@ -89,8 +89,11 @@ export function PackCard({
 				{description && <p className={styles.description}>{description}</p>}
 				{subpacks && subpacks.length > 0 && variant === "pending" && (
 					<div className={styles.subpackSelector}>
-						<label className={styles.subpackLabel}>Subpack:</label>
+						<label className={styles.subpackLabel} htmlFor={subpackSelectId}>
+							Subpack:
+						</label>
 						<select
+							id={subpackSelectId}
 							className={styles.subpackSelect}
 							value={selectedSubpack ?? ""}
 							onChange={(e) => onSubpackChange?.(e.target.value)}

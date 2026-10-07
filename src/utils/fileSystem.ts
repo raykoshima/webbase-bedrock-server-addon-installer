@@ -19,7 +19,6 @@ function formatVersion(
 	return String(version);
 }
 
-
 /**
  * Request directory access from the user
  */

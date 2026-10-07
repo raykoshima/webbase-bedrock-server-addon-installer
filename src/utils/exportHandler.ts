@@ -21,9 +21,7 @@ function formatVersion(
  * `pack.folderName` lets one silently overwrite another. Colliding names get a
  * numeric suffix; the first pack keeps the original name.
  */
-function assignUniqueFolderNames(
-	packs: ParsedPack[],
-): Map<ParsedPack, string> {
+function assignUniqueFolderNames(packs: ParsedPack[]): Map<ParsedPack, string> {
 	const assigned = new Map<ParsedPack, string>();
 	const used = new Set<string>();
 

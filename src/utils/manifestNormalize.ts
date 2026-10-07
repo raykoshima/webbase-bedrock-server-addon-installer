@@ -15,7 +15,8 @@ import type {
 export function normalizeVersion(value: unknown): PackVersion | undefined {
 	if (Array.isArray(value)) {
 		const parts = value.slice(0, 3).map((part) => {
-			const num = typeof part === "number" ? part : Number.parseInt(String(part), 10);
+			const num =
+				typeof part === "number" ? part : Number.parseInt(String(part), 10);
 			return Number.isFinite(num) ? num : 0;
 		});
 		while (parts.length < 3) parts.push(0);
